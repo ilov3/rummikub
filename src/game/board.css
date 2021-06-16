@@ -1,0 +1,93 @@
+body {
+    /*min-height: 100%;*/
+    position: relative;
+}
+
+.sidenav {
+    font-size: 0.9vw;
+    height: 100%; /* Full-height: remove this if you want "auto" height */
+    width: 14vw; /* Set the width of the sidebar */
+    position: fixed; /* Fixed Sidebar (stay in place on scroll) */
+    z-index: 1; /* Stay on top */
+    top: 0; /* Stay at the top */
+    left: 0;
+    background-color: #393939; /* Black */
+    overflow-x: hidden; /* Disable horizontal scroll */
+    padding-top: 20px;
+    color: azure;
+}
+
+div.buttons {
+    margin: 0 auto;
+    margin-top: 1.5vh;
+    width: 18.4vw;
+}
+
+.buttons button {
+    font-size: 0.8vw;
+    display: inline-block;
+    width: 4.2vw;
+    margin-right: 0.2vw;
+    margin-left: 0.2vw;
+}
+
+div.grid-item {
+    border: 0.5px solid cadetblue;
+}
+
+div.tile-drag-layer {
+    position: fixed;
+    pointer-events: none;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
+
+
+div.tile {
+    /*background-image: linear-gradient(to bottom right, var(--tile-gradient-light), var(--tile-gradient-dark));*/
+    background: rgb(209, 219, 220);
+    /*float: left;*/
+    height: 6.95vh;
+    padding: 0px;
+    width: 2.15vw;
+    display: inline-block;
+    border: 1px solid rgb(230, 230, 230);;
+    border-radius: 0.3vw;
+    padding: 0.5vw;
+    margin-bottom: 0.5vw;
+    /*box-shadow: 2px 2px 3px #00000033;*/
+
+    /*transition: transform 0.5s ease-out;*/
+}
+
+.tile-text {
+    position: relative;
+    text-align: center;
+    font-size: 1vw;
+    font-weight: bold;
+    line-height: 2.4vw;
+}
+
+
+.tile-clickable, .tile-set-clickable {
+    cursor: pointer;
+}
+
+.tile-black {
+    color: black;
+}
+
+.tile-red {
+    color: #b30404;
+}
+
+.tile-blue {
+    color: #0b0bbf;
+}
+
+.tile-orange {
+    color: #d9961c;
+}

@@ -1,25 +1,42 @@
-import logo from './logo.svg';
-import './App.css';
+import {GameLobby} from "./game/Lobby"
+import {
+    Switch,
+    Route
+} from "react-router-dom";
+import React from "react";
+import GameMatch from "./game/Match";
+import {Client} from "boardgame.io/react";
+import {Rummikub} from "./game/Game";
+import {RummikubBoard} from "./game/Board";
+import {Local} from "boardgame.io/multiplayer";
+import JoinGamePage from "./game/JoinGamePage";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+function getTestPlayerClient() {
+    let PlayerClient = Client({
+        numPlayers: 2,
+        game: Rummikub,
+        board: RummikubBoard,
+    })
+    return <PlayerClient playerID='0'/>
 }
 
-export default App;
+const App = function () {
+    return (
+        <Switch>
+            <Route path="/match/:matchID">
+                <GameMatch/>
+            </Route>
+            <Route path="/join-match/:matchID">
+                <JoinGamePage/>
+            </Route>
+            <Route path="/test">
+                {getTestPlayerClient()}
+            </Route>
+            <Route path="/">
+                <GameLobby/>
+            </Route>
+        </Switch>
+    )
+};
+
+export default App
