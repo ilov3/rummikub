@@ -64,6 +64,7 @@ div.tile {
 }
 
 .tile-text {
+    user-select: none;
     position: relative;
     text-align: center;
     font-size: 1vw;

@@ -50,7 +50,11 @@ export function Tile({
             type: 'tile',
             item: {id: tile.id},
             end: function (draggedItem, monitor) {
-                onTileDragEnd()
+                let didDrop = monitor.didDrop()
+                if (didDrop) {
+                    onTileDragEnd()
+                }
+                // onTileDragEnd()
                 // return draggedItem
             },
             canDrag: function (monitor) {
