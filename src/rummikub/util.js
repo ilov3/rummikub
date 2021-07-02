@@ -294,6 +294,56 @@ function tryOrderTiles(tiles) {
     return tiles
 }
 
+function reorderTiles(tiles) {
+    if (!tiles || tiles.length < 3) {
+        return tiles
+    }
+    let result = []
+    let pointer = 0
+    let validSeqs = []
+    let validTiles = new Set()
+    let index = pointer + 3
+    while (index <= tiles.length) {
+        let validSeqFound = false
+        while (true) {
+            let slice = tiles.slice(pointer, index)
+            if (isSequenceValid(slice)) {
+                validSeqFound = true
+                slice.forEach((tile) => validTiles.add(tile.id))
+                index++
+            } else {
+                if (validSeqFound) {
+                    validSeqs.push(slice.slice(0, -1))
+                    pointer = index
+                    index += 3
+                    validSeqFound = false
+                } else {
+                    pointer++
+                    index = pointer + 3
+                }
+                break
+            }
+            if (index > tiles.length) {
+                if (validSeqFound) {
+                    validSeqs.push(slice)
+                }
+                break
+            }
+        }
+    }
+    for (const seq of validSeqs) {
+        result.push(...seq)
+        result.push(null)
+    }
+    for (const tile of tiles) {
+        if (!validTiles.has(tile.id)) {
+            result.push(tile)
+        }
+    }
+    console.log('REORDER TILES', validSeqs, validTiles)
+    return result
+}
+
 export {
     buildTileObj,
     getTileById,
@@ -310,6 +360,7 @@ export {
     transpose,
     count2dArrItems,
     countPoints,
+    reorderTiles,
     RedJoker,
     BlackJoker,
 }

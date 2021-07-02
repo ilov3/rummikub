@@ -13,7 +13,7 @@ import {
 } from "../constants";
 import Sidebar from "./Sidebar";
 import _ from 'lodash';
-import {isBoardChanged, isBoardDirty, isBoardValid} from "../moveValidation";
+import {extractSeqs, isBoardChanged, isBoardDirty, isBoardValid} from "../moveValidation";
 import {BlackJoker, getTileById, isSequenceValid, transpose, tryOrderTiles} from "../util";
 import TileDragLayer from "./TileDragLayer";
 import {getGridByIdPlayer} from "../moves";
@@ -21,6 +21,7 @@ import {handleTileSelection, handleLongPress, clearTurnTimeout} from "../boardUt
 
 
 const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID}) {
+    console.log('RENDER BOARD')
     const [state, setState] = useState({selectedTiles: [], lastSelectedTileId: null})
     let longPressTimeoutId = useRef(null)
 
@@ -101,6 +102,16 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID}) {
         </button>
     )
 
+    let validTiles = []
+    let seqs = extractSeqs(G.board)
+    for (const seq of seqs) {
+        if (isSequenceValid(seq)) {
+            for (const tile of seq) {
+                validTiles.push(tile.id)
+            }
+        }
+    }
+
     const boardGrid = (
         <GridContainer rows={BOARD_ROWS}
                        cols={BOARD_COLS}
@@ -108,6 +119,8 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID}) {
                        gridId={BOARD_GRID_ID}
                        canDnD={ctx.currentPlayer === playerID}
                        moveTiles={moveTilesUseCb}
+                       highlightTiles={true}
+                       validTiles={validTiles}
                        selectedTiles={state.selectedTiles}
                        onTileDragEnd={onTileDragEnd}
                        handleTileSelection={handleTileSelectionCb}
@@ -122,6 +135,7 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID}) {
                        tiles2dArray={G.hands[playerID]}
                        gridId={HAND_GRID_ID}
                        canDnD={true}
+                       highlightTiles={false}
                        moveTiles={moveTilesUseCb}
                        selectedTiles={state.selectedTiles}
                        onTileDragEnd={onTileDragEnd}

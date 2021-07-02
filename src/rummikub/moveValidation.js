@@ -141,4 +141,5 @@ export {
     isBoardChanged,
     isCalledByActivePlayer,
     isBoardValid,
+    extractSeqs,
 }

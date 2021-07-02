@@ -26,6 +26,8 @@ const GridContainer = function ({
                                     cols,
                                     canDnD,
                                     gridId,
+                                    validTiles,
+                                    highlightTiles,
                                     selectedTiles,
                                     moveTiles,
                                     onTileDragEnd,
@@ -48,6 +50,8 @@ const GridContainer = function ({
                 handleLongPress={handleLongPress}
                 onLongPressMouseUp={onLongPressMouseUp}
                 gridId={gridId}
+                validTiles={validTiles}
+                highlightTiles={highlightTiles}
                 row={y}
                 col={x}
                 key={key}

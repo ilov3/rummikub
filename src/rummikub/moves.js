@@ -8,6 +8,7 @@ import {
     isMoveValid,
     freezeTmpTiles,
 } from "./moveValidation";
+import {reorderTiles} from "./util";
 
 function getGridByIdPlayer(G, gridId, playerId) {
     let grid = null
@@ -89,8 +90,8 @@ function orderByColorVal(G, ctx) {
 
     let sorted = _.orderBy(arr, ['color', 'value'], ['asc'])
     sorted.push(..._.orderBy(dups, ['color', 'value'], ['asc']))
-    console.debug(sorted.length)
-    pushTilesToGrid(sorted, G.hands[ctx.playerID], G,
+
+    pushTilesToGrid(reorderTiles(sorted), G.hands[ctx.playerID], G,
         {gridId: HAND_GRID_ID, playerID: ctx.playerID}, ctx, true)
 }
 
@@ -101,8 +102,8 @@ function orderByValColor(G, ctx) {
 
     let sorted = _.orderBy(arr, ['value', 'color'], ['asc'])
     sorted.push(..._.orderBy(dups, ['value', 'color'], ['asc']))
-    console.debug(sorted.length)
-    pushTilesToGrid(sorted, G.hands[ctx.playerID], G,
+
+    pushTilesToGrid(reorderTiles(sorted), G.hands[ctx.playerID], G,
         {gridId: HAND_GRID_ID, playerID: ctx.playerID}, ctx, true)
 }
 

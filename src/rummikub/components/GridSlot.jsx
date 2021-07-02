@@ -29,6 +29,8 @@ const GridSlot =
          row,
          moveTiles,
          gridId,
+         validTiles,
+         highlightTiles,
          canDnD,
          selectedTiles,
          handleTileSelection,
@@ -52,6 +54,10 @@ const GridSlot =
         }), [tile, canDnD, selectedTiles])
 
         if (tile) {
+            let isValid
+            if (highlightTiles) {
+                isValid = validTiles.indexOf(tile.id) !== -1
+            }
             return (
                 <div
                     ref={drop}
@@ -60,6 +66,7 @@ const GridSlot =
                     <Tile
                         tile={tile}
                         canDnD={canDnD}
+                        isValid={isValid}
                         isSelected={isSelected}
                         onTileDragEnd={onTileDragEnd}
                         handleTileSelection={handleTileSelection}

@@ -9,12 +9,12 @@ import _ from "lodash";
 import useLongPress from "../useLongPress";
 import {HAND_GRID_ID} from "../constants";
 
-function TilePreview({tile, isSelected, isDragging}) {
+function TilePreview({tile, isSelected, isDragging, isValid}) {
     if (!tile) return null
     let val = isJoker(tile) ? <FontAwesomeIcon icon={faSmileBeam}/> : tile.value
     return (
         <div
-            style={getTileStyle(isSelected, isDragging)}
+            style={getTileStyle(isSelected, isDragging, isValid)}
             className="tile tile-clickable border-dark">
             <div className={"tile-text tile-" + tile.color}>{val}</div>
             <div className={"tile-subscript"}></div>
@@ -22,9 +22,20 @@ function TilePreview({tile, isSelected, isDragging}) {
     )
 }
 
-function getTileStyle(selected, isDragging) {
+function getTileStyle(selected, isDragging, isValid) {
+    let backgroundColor = ''
+    if (isValid === true) {
+        backgroundColor = 'rgba(159,255,113,0.68)'
+    } else if (isValid === false) {
+        backgroundColor = 'rgba(255,85,85,0.88)'
+    }
+
+    if (selected) {
+        backgroundColor = '#c0c0c0'
+    }
+
     return {
-        backgroundColor: selected ? '#c0c0c0' : '',
+        backgroundColor: backgroundColor,
         opacity: isDragging ? 0.5 : 1,
         fontSize: 25,
         fontWeight: 'bold',
@@ -36,6 +47,7 @@ export function Tile({
                          tile,
                          canDnD,
                          isSelected,
+                         isValid,
                          handleTileSelection,
                          onTileDragEnd,
                          handleLongPress,
@@ -94,7 +106,9 @@ export function Tile({
         <TilePreview
             tile={tile}
             isSelected={isSelected}
-            isDragging={isDragging}/>
+            isDragging={isDragging}
+            isValid={isValid}
+        />
     </div>
 }
 
