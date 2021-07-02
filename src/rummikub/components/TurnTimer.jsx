@@ -1,16 +1,20 @@
 import React from "react";
+import {updateTurnTimeout, getTurnTimeout} from "../boardUtil";
 
 class TurnTimer extends React.Component {
     constructor(props) {
         super(props);
-        let expireKey = `${this.props.matchID}:expire`
-        let timerExpireAt = localStorage.getItem(expireKey)
+        let timerExpireAt = getTurnTimeout(this.props.matchID, this.props.playerID)
         if (timerExpireAt) {
             let secondsLeft = Math.round((parseInt(timerExpireAt) - Date.now()) / 1000)
             secondsLeft = secondsLeft > 1 ? secondsLeft : 1
             this.state = {secondsLeft: secondsLeft}
         } else {
-            localStorage.setItem(expireKey, props.secondsLeft * 1000 + Date.now())
+            updateTurnTimeout(
+                this.props.matchID,
+                this.props.playerID,
+                this.props.secondsLeft * 1000 + Date.now()
+            )
             this.state = {secondsLeft: props.secondsLeft};
         }
         this.timerId = null
@@ -35,10 +39,10 @@ class TurnTimer extends React.Component {
     render() {
         return (
             <div className="ml-2">
-                <p className={this.state.secondsLeft < 10 ? 'text-danger' : '' }
-                    style={
-                    {fontSize: 66}
-                }>{this.state.secondsLeft}</p>
+                <p className={this.state.secondsLeft < 10 ? 'text-danger' : ''}
+                   style={
+                       {fontSize: 66}
+                   }>{this.state.secondsLeft}</p>
             </div>
         )
     }

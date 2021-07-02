@@ -111,16 +111,16 @@ function freezeJokerProp(joker, props) {
 }
 
 function freezeJokersInRun(tiles) {
-    console.log('call', tiles)
+    console.debug('call', tiles)
 
     let freezed = [];
     let left = 0;
     let twoJokersNear = false
     for (let right = 1; right < tiles.length; right++) {
-        console.log(right)
+        console.debug(right)
         let curr = tiles[left]
         let next = tiles[right]
-        console.log(curr, next)
+        console.debug(curr, next)
         if (isJoker(curr) && isJoker(next)) {
             twoJokersNear = true
             if (right === tiles.length - 1) {
@@ -138,10 +138,10 @@ function freezeJokersInRun(tiles) {
             left++
             continue
         } else if (isJoker(curr) && !isJoker(next)) {
-            console.log('curr is joker; next is not')
+            console.debug('curr is joker; next is not')
             let copy = Object.assign({}, curr)
             copy.value = next.value - 1
-            console.log(copy.value)
+            console.debug(copy.value)
             if (copy.value === 0) {
                 if (left === 0) {
                     return null
@@ -150,7 +150,7 @@ function freezeJokersInRun(tiles) {
                 }
             }
             freezed.push(copy)
-            console.log('after push', freezed)
+            console.debug('after push', freezed)
             if (right === tiles.length - 1) {
                 freezed.push(next)
             }
@@ -181,7 +181,7 @@ function freezeJokersInRun(tiles) {
         freezed = freezeJokersInRun(freezed)
     }
     console.assert(freezed.length === tiles.length)
-    console.log('result', freezed)
+    console.debug('result', freezed)
     return freezed
 }
 
@@ -213,6 +213,9 @@ function countSeqScore(tiles) {
 
     if (isSameColor(tiles)) {
         let freezed = jokersCount ? freezeJokersInRun(tiles) : tiles
+        if (!freezed) {
+            return 0
+        }
         let left = 0
         let oneAfterThirteen = false
         for (let right = 1; right < freezed.length; right++) {
@@ -286,7 +289,7 @@ function tryOrderTiles(tiles) {
             }
         }
     } catch (error) {
-        console.log('Could not find combination within given tiles')
+        console.debug('Could not find combination within given tiles')
     }
     return tiles
 }

@@ -1,7 +1,7 @@
-import {Rummikub} from "../game/Game";
+import {Rummikub} from "../rummikub/Game";
 import {Client} from 'boardgame.io/client';
-import {getTiles} from "../game/util";
-import {BOARD_COLS, BOARD_GRID_ID, BOARD_ROWS, HAND_GRID_ID} from "../game/constants";
+import {getTiles} from "../rummikub/util";
+import {BOARD_COLS, BOARD_GRID_ID, BOARD_ROWS, HAND_GRID_ID} from "../rummikub/constants";
 
 test('test game finish on no tiles', () => {
     const RummikubFinishGame = {
@@ -65,7 +65,7 @@ test('test game finish on no tiles', () => {
         game: RummikubFinishGame,
     });
 
-    client.moves.moveTile(0, 0, BOARD_GRID_ID, {id: "0-11-blue"}, [
+    client.moves.moveTiles(0, 0, BOARD_GRID_ID, {id: "0-11-blue"}, [
         "0-11-blue",
         "0-12-blue",
         "0-13-blue",

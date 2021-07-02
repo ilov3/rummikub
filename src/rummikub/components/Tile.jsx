@@ -2,19 +2,19 @@ import React, {useState} from 'react';
 import {useEffect} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faSmileBeam} from "@fortawesome/free-solid-svg-icons";
-import {isJoker} from "./util";
+import {isJoker} from "../util";
 import {useDrag} from 'react-dnd';
 import {getEmptyImage} from "react-dnd-html5-backend";
 import _ from "lodash";
-import useLongPress from "./useLongPress";
-import {HAND_GRID_ID} from "./constants";
+import useLongPress from "../useLongPress";
+import {HAND_GRID_ID} from "../constants";
 
-function TilePreview({tile, selected, isDragging}) {
+function TilePreview({tile, isSelected, isDragging}) {
     if (!tile) return null
     let val = isJoker(tile) ? <FontAwesomeIcon icon={faSmileBeam}/> : tile.value
     return (
         <div
-            style={getTileStyle(selected, isDragging)}
+            style={getTileStyle(isSelected, isDragging)}
             className="tile tile-clickable border-dark">
             <div className={"tile-text tile-" + tile.color}>{val}</div>
             <div className={"tile-subscript"}></div>
@@ -33,11 +33,9 @@ function getTileStyle(selected, isDragging) {
 }
 
 export function Tile({
-                         gridId,
-                         playerID,
-                         ctx,
                          tile,
-                         selectedTiles,
+                         canDnD,
+                         isSelected,
                          handleTileSelection,
                          onTileDragEnd,
                          handleLongPress,
@@ -45,7 +43,6 @@ export function Tile({
                      }) {
     const longPressTimeout = 200
     const [{isDragging}, drag, preview] = useDrag(function () {
-        // console.log(`DRAG EVENT`, tile)
         return {
             type: 'tile',
             item: {id: tile.id},
@@ -54,17 +51,15 @@ export function Tile({
                 if (didDrop) {
                     onTileDragEnd()
                 }
-                // onTileDragEnd()
-                // return draggedItem
             },
-            canDrag: function (monitor) {
-                return gridId === HAND_GRID_ID || ctx.currentPlayer === playerID
+            canDrag: () => {
+                return canDnD
             },
             collect: monitor => ({
                 isDragging: monitor.isDragging(),
             }),
         }
-    })
+    }, [canDnD])
     useEffect(() => {
         preview(getEmptyImage(), {captureDraggingState: true});
     }, [preview]);
@@ -76,7 +71,9 @@ export function Tile({
     };
 
     const onClick = (e) => {
-        handleTileSelection(tile.id, e.shiftKey, e.ctrlKey)
+        if (!e.altKey) {
+            handleTileSelection(tile.id, e.shiftKey, e.ctrlKey)
+        }
     }
 
     function onMouseUp() {
@@ -89,16 +86,14 @@ export function Tile({
     };
     const longPressEvent = useLongPress(onLongPress, onMouseUp, isDragging, defaultOptions);
 
-
-    let selected = selectedTiles.includes(tile.id)
     return <div
         onClick={onClick}
         {...longPressEvent}
         ref={drag}
-        key={tile.id} id={tile.id}>
+        id={tile.id}>
         <TilePreview
             tile={tile}
-            selected={selected}
+            isSelected={isSelected}
             isDragging={isDragging}/>
     </div>
 }

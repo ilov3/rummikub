@@ -3,6 +3,10 @@ body {
     position: relative;
 }
 
+.game-navbar {
+    height: 40px;
+}
+
 .sidenav {
     font-size: 0.9vw;
     height: 100%; /* Full-height: remove this if you want "auto" height */
@@ -19,7 +23,7 @@ body {
 
 div.buttons {
     margin: 0 auto;
-    margin-top: 1.5vh;
+    margin-top: 1vh;
     width: 18.4vw;
 }
 
@@ -33,6 +37,16 @@ div.buttons {
 
 div.grid-item {
     border: 0.5px solid cadetblue;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+div.grid-container {
+    grid-column-gap: 0.05vw;
+    grid-row-gap: 2px;
+    margin-top: 1.5vh;
+    display: grid;
 }
 
 div.tile-drag-layer {
@@ -69,7 +83,9 @@ div.tile {
     text-align: center;
     font-size: 1vw;
     font-weight: bold;
-    line-height: 2.4vw;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
 }
 
 

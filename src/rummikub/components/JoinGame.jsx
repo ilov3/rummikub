@@ -2,7 +2,7 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import {useState} from "react";
 import {useHistory} from "react-router-dom";
-import GameLobbyClient from "./lobbyClient";
+import GameLobbyClient from "../lobbyClient";
 
 const JoinGameForm = function () {
     const client = new GameLobbyClient()
@@ -14,7 +14,7 @@ const JoinGameForm = function () {
     function onMatchIDChange(matchID) {
         setMatchID(matchID)
         client.listSeats(matchID).then((matchData) => {
-            console.log(matchData.players)
+            console.debug(matchData.players)
             setSeats(matchData.players)
         }, (value) => {
             setSeats([])
@@ -24,7 +24,7 @@ const JoinGameForm = function () {
     function onJoinMatch() {
         client.listSeats(matchID).then(matchData => {
             let seat = 0
-            console.log(matchData)
+            console.debug(matchData)
             for (let playerSeat of matchData.players) {
                 if (!playerSeat.name) {
                     seat = playerSeat.id
@@ -40,7 +40,7 @@ const JoinGameForm = function () {
                     })
                 })
         }, error => {
-            console.log(error)
+            console.debug(error)
         })
     }
 

@@ -5,7 +5,7 @@ import {
     orderByValColor,
     orderByColorVal,
     drawTile,
-    moveTile,
+    moveTiles,
     endTurn,
     cancelMoves,
 } from "./moves";
@@ -34,7 +34,7 @@ function isGameOver(G, ctx) {
 const Rummikub = {
     name: GAME_NAME,
     setup: function (ctx, setupData) {
-        console.log('GAME SETUP CALLED. CTX:', ctx)
+        console.debug('GAME SETUP CALLED. CTX:', ctx)
         let pool = ctx.random.Shuffle(getTiles())
         let board = Array.from(Array(BOARD_ROWS), _ => Array(BOARD_COLS).fill(null));
         let hands = []
@@ -58,7 +58,7 @@ const Rummikub = {
             firstMoveDone.push(false)
         }
         return {
-            timePerTurn: setupData ? setupData.timePerTurn : 60,
+            timePerTurn: setupData ? setupData.timePerTurn : 10,
             tiles_pool: pool,
             hands: hands,
             board: board,
@@ -72,7 +72,7 @@ const Rummikub = {
         drawTile,
         orderByColorVal,
         orderByValColor,
-        moveTile,
+        moveTiles,
         endTurn,
         cancelMoves,
     },

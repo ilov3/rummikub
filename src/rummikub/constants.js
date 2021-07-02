@@ -1,9 +1,9 @@
 const IS_DEV = process.env.NODE_ENV === 'development'
-console.log('DEV ENV:', IS_DEV)
+console.debug('DEV ENV:', IS_DEV)
 const HAND_ROWS = 3
 const BOARD_ROWS = 9
-const HAND_COLS = 14
-const TILES_TO_DRAW = IS_DEV ? 36 : 14
+const HAND_COLS = 16
+const TILES_TO_DRAW = IS_DEV ? 20 : 14
 const FIRST_MOVE_SCORE_LIMIT = IS_DEV ? 10 : 30;
 const BOARD_COLS = 30
 const BOARD_GRID_ID = 'board'
@@ -28,4 +28,5 @@ export {
     LOBBY_SERVER_PORT,
     LOBBY_SERVER_PROTO,
     FRONTEND_PORT,
+    IS_DEV,
 }

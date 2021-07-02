@@ -1,16 +1,16 @@
 import {Client} from 'boardgame.io/react';
-import {Rummikub} from "./Game";
-import {RummikubBoard} from "./Board";
+import {Rummikub} from "../Game";
+import RummikubBoard from "./Board";
 import {useParams, useLocation} from "react-router-dom"
 import {SocketIO} from "boardgame.io/multiplayer";
-import {LOBBY_SERVER_HOST, LOBBY_SERVER_PORT, LOBBY_SERVER_PROTO} from "./constants";
+import {LOBBY_SERVER_HOST, LOBBY_SERVER_PORT, LOBBY_SERVER_PROTO} from "../constants";
 import React from "react";
 
 const GameMatch = function (props) {
     let {matchID} = useParams();
-    console.log(matchID)
+    console.debug(matchID)
     let location = useLocation();
-    console.log('STATE:', location.state)
+    console.debug('STATE:', location.state)
     let PlayerClient = Client({
         numPlayers: location.state.numPlayers,
         game: Rummikub,

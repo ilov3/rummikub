@@ -5,7 +5,7 @@ import {
     BlackJoker,
     buildTileObj,
     freezeJokerProp
-} from "../game/util";
+} from "../rummikub/util";
 
 test('test freeze one joker', () => {
     let tiles = [

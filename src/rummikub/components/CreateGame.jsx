@@ -1,6 +1,6 @@
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
-import GameLobbyClient from "./lobbyClient";
+import GameLobbyClient from "../lobbyClient";
 import {useState} from "react";
 import {useHistory} from "react-router-dom"
 
@@ -15,7 +15,7 @@ const CreateGameForm = function () {
     function onGameCreate() {
         client.createGame(numPlayers, timePerTurn).then(
             (id) => {
-                console.log(id)
+                console.debug(id)
                 setMatchID(id)
                 client.joinGame(id, username).then((playerCreds) => {
                     history.push(`/match/${id}`, {
@@ -63,6 +63,7 @@ const CreateGameForm = function () {
                         setTimePerTurn(e.target.value)
                     }}
                     as="select">
+                    <option>10</option>
                     <option>20</option>
                     <option>30</option>
                     <option>40</option>

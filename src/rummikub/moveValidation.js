@@ -31,9 +31,11 @@ function isBoardChanged(G) {
 
 function extractSeqs(board) {
     let seqs = []
-    for (let row = 0; row < BOARD_ROWS; row++) {
+    const rows = board.length
+    const cols = board[0].length
+    for (let row = 0; row < rows; row++) {
         let seq = []
-        for (let col = 0; col < BOARD_COLS; col++) {
+        for (let col = 0; col < cols; col++) {
             let tile = board[row][col]
             if (tile) {
                 seq.push(tile)
@@ -60,7 +62,7 @@ function isBoardValid(board) {
 
 function isMoveValid(G, ctx) {
     let seqs = extractSeqs(G.board)
-    console.log(seqs)
+    console.debug(seqs)
 
     let newFound = _.find(seqs, function (seq) {
         for (let tile of seq) {
@@ -71,12 +73,12 @@ function isMoveValid(G, ctx) {
         }
     })
     if (!newFound) {
-        console.log("MOVE FAIL: NO NEW TILE")
+        console.debug("MOVE FAIL: NO NEW TILE")
         return false
     }
     for (const seq of seqs) {
         if (!isSequenceValid(seq)) {
-            console.log("MOVE FAIL: SEQ INV:", seq)
+            console.debug("MOVE FAIL: SEQ INV:", seq)
             return false
         }
     }
@@ -90,7 +92,7 @@ function isFirstMove(G, ctx) {
 
 function isFirstMoveValid(G, ctx) {
     let seqs = extractSeqs(G.board)
-    console.log(seqs)
+    console.debug(seqs)
 
     let mixed = _.find(seqs, function (seq) {
         let oldFound = false
@@ -106,7 +108,7 @@ function isFirstMoveValid(G, ctx) {
         return oldFound && newFound
     })
     if (mixed) {
-        console.log("FIRST MOVE FAIL: MIXED:", mixed)
+        console.debug("FIRST MOVE FAIL: MIXED:", mixed)
         return false
     }
 
@@ -114,7 +116,7 @@ function isFirstMoveValid(G, ctx) {
     for (let seq of seqs) {
         let seqScore = countSeqScore(seq)
         if (!seqScore) {
-            console.log("FIRST MOVE FAIL: INV SEQ:", seq)
+            console.debug("FIRST MOVE FAIL: INV SEQ:", seq)
             return false
         }
         let tile = seq[0]
@@ -124,7 +126,7 @@ function isFirstMoveValid(G, ctx) {
         }
     }
     if (score < FIRST_MOVE_SCORE_LIMIT) {
-        console.log("FIRST MOVE FAIL: NOT ENOUGH SCORE: ", score)
+        console.debug("FIRST MOVE FAIL: NOT ENOUGH SCORE: ", score)
         return false
     }
     return true

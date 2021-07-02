@@ -1,6 +1,6 @@
 import React from 'react';
 import GridContainer from "./GridContainer";
-import {HAND_COLS, HAND_ROWS} from "./Game";
+import {HAND_COLS, HAND_ROWS} from "../constants";
 
 const Hand = function ({G, ctx}) {
     let state = {

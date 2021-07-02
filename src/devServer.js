@@ -1,5 +1,5 @@
 import {Server} from 'boardgame.io/server';
-import {Rummikub} from "./game/Game";
+import {Rummikub} from "./rummikub/Game";
 
 const server = Server({games: [Rummikub]});
 server.run(9119);

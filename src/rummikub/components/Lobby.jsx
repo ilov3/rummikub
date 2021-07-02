@@ -9,7 +9,7 @@ export const GameLobby = function () {
     return (
         <div className='container'>
             <div className="justify-content-center row mt-lg-5 mt-sm-5">
-                <div className="col-lg-4 col-md-4 col-sm-8">
+                <div>
                     <button onClick={() => setToggle(true)} className="btn btn-outline-primary mr-2">
                         Create game
                     </button>

@@ -1,4 +1,4 @@
-import {HAND_COLS, HAND_ROWS, BOARD_GRID_ID, HAND_GRID_ID} from "./constants";
+import {BOARD_GRID_ID, HAND_GRID_ID} from "./constants";
 import _ from "lodash";
 import {
     isCalledByActivePlayer,
@@ -19,11 +19,6 @@ function getGridByIdPlayer(G, gridId, playerId) {
     }
     console.assert(grid !== null, `Could not resolve grid for ${gridId}:${playerId}`)
     return grid
-}
-
-function removeFromPos(tilePos, G, ctx) {
-    let grid = getGridByIdPlayer(G, tilePos.gridId, tilePos.playerID)
-    grid[tilePos.row][tilePos.col] = null
 }
 
 function pushTilesToGrid(tiles, grid, G, flags, ctx, override) {
@@ -94,7 +89,7 @@ function orderByColorVal(G, ctx) {
 
     let sorted = _.orderBy(arr, ['color', 'value'], ['asc'])
     sorted.push(..._.orderBy(dups, ['color', 'value'], ['asc']))
-    console.log(sorted.length)
+    console.debug(sorted.length)
     pushTilesToGrid(sorted, G.hands[ctx.playerID], G,
         {gridId: HAND_GRID_ID, playerID: ctx.playerID}, ctx, true)
 }
@@ -106,7 +101,7 @@ function orderByValColor(G, ctx) {
 
     let sorted = _.orderBy(arr, ['value', 'color'], ['asc'])
     sorted.push(..._.orderBy(dups, ['value', 'color'], ['asc']))
-    console.log(sorted.length)
+    console.debug(sorted.length)
     pushTilesToGrid(sorted, G.hands[ctx.playerID], G,
         {gridId: HAND_GRID_ID, playerID: ctx.playerID}, ctx, true)
 }
@@ -115,13 +110,14 @@ function isOverlap(G, ctx, col, row, destGridId, tileId) {
     let currPlayer = ctx.playerID
     if (destGridId === BOARD_GRID_ID && G.board[row][col]
         || destGridId === HAND_GRID_ID && G.hands[currPlayer][row][col]) {
-        console.log('TILE OVERLAP')
+        console.debug('TILE OVERLAP')
         return true
     }
     return false
 }
 
-function moveTile(G, ctx, col, row, destGridId, tileIdObj, selectedTiles) {
+function moveTiles(G, ctx, col, row, destGridId, tileIdObj, selectedTiles) {
+    console.debug('MOVE TILE:', col, row, destGridId, tileIdObj, selectedTiles)
     let tileId = tileIdObj.id
 
     function insertTile(tileId, destGridId, destRow, destCol) {
@@ -137,7 +133,6 @@ function moveTile(G, ctx, col, row, destGridId, tileIdObj, selectedTiles) {
         let flags = null
         let source = null
         let dest = null
-        console.log("INSERT TILE:", tileId, sourceRow, sourceCol, destRow, destCol, flags)
 
         if (fromHandToBoard) {
             if (!isCalledByActivePlayer(ctx)) return
@@ -162,12 +157,12 @@ function moveTile(G, ctx, col, row, destGridId, tileIdObj, selectedTiles) {
         } else {
             return
         }
-
+        if (destRow >= dest.length || destCol >= dest[0].length) return
+        console.debug("INSERT TILE:", tileId, sourceRow, sourceCol, destRow, destCol, flags, selectedTiles)
         dest[destRow][destCol] = source[sourceRow][sourceCol]
         source[sourceRow][sourceCol] = null
         let tilePos = {id: tileId, col: destCol, row: destRow, gridId: destGridId, ...flags}
         G.tilePositions[tileId] = tilePos
-        console.log('DROP END', Date.now())
     }
 
     if (selectedTiles.length > 0) {
@@ -181,12 +176,12 @@ function moveTile(G, ctx, col, row, destGridId, tileIdObj, selectedTiles) {
 
 function endTurn(G, ctx) {
     if (!isCalledByActivePlayer(ctx)) return
-    console.log('END TURN CALLED', ctx.currentPlayer)
+    console.debug('END TURN CALLED', ctx.currentPlayer)
     if (isBoardDirty(G)) {
-        console.log('BOARD IS DIRTY')
+        console.debug('BOARD IS DIRTY')
         onTurnEnd(G, ctx)
     } else {
-        console.log('BOARD IS CLEAN')
+        console.debug('BOARD IS CLEAN')
         drawTile(G, ctx)
     }
 }
@@ -216,35 +211,35 @@ function cancelMoves(G, ctx) {
 
 function onTurnEnd(G, ctx) {
     let player = ctx.currentPlayer
-    console.log('ON TURN END', player)
+    console.debug('ON TURN END', player)
     let moveValid = false
     if (isFirstMove(G, ctx)) {
-        console.log("FIRST MOVE")
+        console.debug("FIRST MOVE")
         moveValid = isFirstMoveValid(G, ctx)
     } else {
-        console.log("NOT FIRST MOVE")
+        console.debug("NOT FIRST MOVE")
         moveValid = isMoveValid(G, ctx)
     }
     if (moveValid) {
-        console.log('MOVE VALID')
+        console.debug('MOVE VALID')
         G.firstMoveDone[player] = true
         freezeTmpTiles(G)
         ctx.events.endTurn()
     } else {
-        console.log('MOVE INVALID')
+        console.debug('MOVE INVALID')
         drawTile(G, ctx)
     }
 }
 
 function onTurnBegin(G, ctx) {
-    console.log('NEW TURN', new Date())
+    console.debug('NEW TURN', new Date())
     G.prevBoard = G.board;
     G.prevTilePositions = G.tilePositions
 }
 
 export {
     endTurn,
-    moveTile,
+    moveTiles,
     orderByColorVal,
     orderByValColor,
     onTurnEnd,

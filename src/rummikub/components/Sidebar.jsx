@@ -3,12 +3,13 @@ import _ from "lodash";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faChevronRight} from "@fortawesome/free-solid-svg-icons";
 import TurnTimer from "./TurnTimer";
-import {count2dArrItems} from "./util";
+import {count2dArrItems} from "../util";
 import {Link} from "react-router-dom";
 import {Button} from "react-bootstrap";
-import {FRONTEND_PORT, LOBBY_SERVER_HOST, LOBBY_SERVER_PROTO} from "./constants";
+import {FRONTEND_PORT, LOBBY_SERVER_HOST, LOBBY_SERVER_PROTO, IS_DEV} from "../constants";
 
 const Sidebar = function ({
+                              boardIsValid,
                               tilesOnPool,
                               currentPlayer,
                               playerID,
@@ -51,12 +52,14 @@ const Sidebar = function ({
                 }
                 return elem
             })}
+            <div className="ml-2 {}">{ boardIsValid ? 'Board is valid': 'Board invalid'}</div>
             <div
                 className="ml-2 text-danger">
                 {gameover ? `Winner: ${matchData[parseInt(gameover.winner)].name}, ${gameover.points} points` : ''}
             </div>
             {showTurnTimer ? <TurnTimer
                 matchID={matchID}
+                playerID={playerID}
                 secondsLeft={timePerTurn}
                 onTimeout={onTimeout}/> : ''}
         </div>
