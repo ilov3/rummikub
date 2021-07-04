@@ -166,7 +166,7 @@ function moveTiles(G, ctx, col, row, destGridId, tileIdObj, selectedTiles) {
         G.tilePositions[tileId] = tilePos
     }
 
-    if (selectedTiles.length > 0) {
+    if (selectedTiles.length > 0 && selectedTiles.indexOf(tileId) !== -1) {
         selectedTiles.map(function (id, index) {
             insertTile(id, destGridId, row, col + index)
         })

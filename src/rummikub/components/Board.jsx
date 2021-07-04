@@ -28,15 +28,13 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID}) {
     const moveTilesUseCb = useCallback((col, row, destGridId, tileIdObj, selectedTiles) => {
         moves.moveTiles(col, row, destGridId, tileIdObj, selectedTiles)
     }, [])
-    const handleTileSelectionCb = handleTileSelection.bind(null, G, state, setState, playerID)
-    const handleLongPressCb = handleLongPress.bind(null, G, playerID, setState, longPressTimeoutId)
-
-    function onBoardClick(e) {
-        let classList = e.target.className && e.target.className.split(' ')
-        if (!(classList && (classList.includes('tile') || classList.includes('tile-text')))) {
-            setState({selectedTiles: [], lastSelectedTileId: null})
-        }
-    }
+    const handleTileSelectionCb = useCallback((tileId, shiftKey, ctrlKey) => {
+        console.log(state)
+        handleTileSelection(G, state, setState, playerID, tileId, shiftKey, ctrlKey)
+    }, [G, playerID, state])
+    const handleLongPressCb = useCallback((tileId, timeout) => {
+        handleLongPress(G, playerID, setState, longPressTimeoutId, tileId, timeout)
+    }, [G, playerID, longPressTimeoutId])
 
     const onTileDragEnd = useCallback(() => {
         setState({selectedTiles: [], lastSelectedTileId: null})
@@ -48,6 +46,13 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID}) {
             clearTimeout(longPressTimeoutId.current)
         }
     }, [longPressTimeoutId])
+
+    function onBoardClick(e) {
+        let classList = e.target.className && e.target.className.split && e.target.className.split(' ')
+        if (!(classList && (classList.includes('tile') || classList.includes('tile-text')))) {
+            setState({selectedTiles: [], lastSelectedTileId: null})
+        }
+    }
 
     function onOrderByColorClicked(e) {
         moves.orderByColorVal();

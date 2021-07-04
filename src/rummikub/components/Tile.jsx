@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {useEffect} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faSmileBeam} from "@fortawesome/free-solid-svg-icons";
@@ -54,6 +54,7 @@ export function Tile({
                          onLongPressMouseUp
                      }) {
     const longPressTimeout = 200
+    const [longPressTriggered, setLongPress] = useState(false)
     const [{isDragging}, drag, preview] = useDrag(function () {
         return {
             type: 'tile',
@@ -82,11 +83,16 @@ export function Tile({
         }
     };
 
-    const onClick = (e) => {
+    const onClick = useCallback((e) => {
+        if (longPressTriggered) {
+            console.log('CLEARING AFTER LONGPRESS')
+            setLongPress(false)
+            return
+        }
         if (!e.altKey) {
             handleTileSelection(tile.id, e.shiftKey, e.ctrlKey)
         }
-    }
+    }, [longPressTriggered, handleTileSelection])
 
     function onMouseUp() {
         onLongPressMouseUp()
@@ -96,7 +102,7 @@ export function Tile({
         shouldPreventDefault: false,
         delay: longPressTimeout,
     };
-    const longPressEvent = useLongPress(onLongPress, onMouseUp, isDragging, defaultOptions);
+    const longPressEvent = useLongPress(onLongPress, onMouseUp, longPressTriggered, setLongPress, defaultOptions);
 
     return <div
         onClick={onClick}
