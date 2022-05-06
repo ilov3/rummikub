@@ -13,6 +13,7 @@ const LOBBY_SERVER_HOST = IS_DEV ? 'localhost' : 'rummi.uk'
 const LOBBY_SERVER_PORT = IS_DEV ? '9119' : '443'
 const FRONTEND_PORT = IS_DEV ? '3000' : '443'
 const LOBBY_SERVER_PROTO = IS_DEV ? 'http' : 'https'
+const SENTRY_DSN = process.env.SENTRY_DSN
 
 export {
     HAND_COLS,
@@ -29,4 +30,5 @@ export {
     LOBBY_SERVER_PROTO,
     FRONTEND_PORT,
     IS_DEV,
+    SENTRY_DSN,
 }

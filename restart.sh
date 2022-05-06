@@ -2,5 +2,5 @@
 
 docker kill rummi
 docker pull ilov3/rummi:latest
-docker run -d --rm -p 9119:9119 --name rummi ilov3/rummi
+docker run -d --rm -p 9119:9119 --name rummi --env-file .env.rummi ilov3/rummi
 sudo systemctl reload nginx
