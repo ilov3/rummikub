@@ -1,6 +1,6 @@
 import {GameLobby} from "./rummikub/components/Lobby"
 import {
-    Switch,
+    Routes,
     Route
 } from "react-router-dom";
 import React from "react";
@@ -32,20 +32,12 @@ const App = function () {
     window.addEventListener('keydown', KeyCheck, false);
     return (
         <>
-            <Switch>
-                <Route path="/match/:matchID">
-                    <GameMatch/>
-                </Route>
-                <Route path="/join-match/:matchID">
-                    <JoinGamePage/>
-                </Route>
-                <Route path="/test">
-                    {getTestPlayerClient()}
-                </Route>
-                <Route path="/">
-                    <GameLobby/>
-                </Route>
-            </Switch>
+            <Routes>
+                <Route path="/match/:matchID" element={<GameMatch/>}/>
+                <Route path="/join-match/:matchID" element={<JoinGamePage/>}/>
+                <Route path="/test" element={getTestPlayerClient()}/>
+                <Route path="/" element={<GameLobby/>}/>
+            </Routes>
         </>
     )
 };

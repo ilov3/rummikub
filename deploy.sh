@@ -1,6 +1,5 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 npm run build
-docker build -t rummikub:latest .
-docker tag rummikub:latest registry.digitalocean.com/rummikub/rummikub:latest
-docker push registry.digitalocean.com/rummikub/rummikub:latest
+docker build -t ilov3/rummi:latest .
+docker push ilov3/rummi:latest

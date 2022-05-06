@@ -1,13 +1,13 @@
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import {useState, useEffect} from "react";
-import {useHistory, useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import GameLobbyClient from "../lobbyClient";
 
 const JoinGamePage = function () {
     let {matchID} = useParams();
     const client = new GameLobbyClient()
-    const history = useHistory()
+    const navigate = useNavigate()
     const [username, setUsername] = useState('')
     const [seats, setSeats] = useState([])
 
@@ -31,11 +31,13 @@ const JoinGamePage = function () {
                 }
             }
             client.joinGame(matchID, username, seat).then((playerCreds) => {
-                history.push(`/match/${matchID}`, {
-                    username: username,
-                    numPlayers: matchData.players.length,
-                    creds: playerCreds,
-                    playerID: seat,
+                navigate(`/match/${matchID}`, {
+                    state: {
+                        username: username,
+                        numPlayers: matchData.players.length,
+                        creds: playerCreds,
+                        playerID: seat,
+                    },
                 })
             })
         }, error => {
