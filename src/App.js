@@ -10,7 +10,6 @@ import {Rummikub} from "./rummikub/Game";
 import RummikubBoard from "./rummikub/components/Board";
 import {Local} from "boardgame.io/multiplayer";
 import JoinGamePage from "./rummikub/components/JoinGamePage";
-import GameNavbar from "./rummikub/components/Navbar";
 
 function getTestPlayerClient() {
     let PlayerClient = Client({

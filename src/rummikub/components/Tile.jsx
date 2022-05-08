@@ -2,7 +2,7 @@ import React, {useCallback, useState} from 'react';
 import {useEffect} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faSmileBeam} from "@fortawesome/free-solid-svg-icons";
-import {isJoker} from "../util";
+import {COLORS, isJoker} from "../util";
 import {useDrag} from 'react-dnd';
 import {getEmptyImage} from "react-dnd-html5-backend";
 import _ from "lodash";
@@ -16,7 +16,7 @@ function TilePreview({tile, isSelected, isDragging, isValid}) {
         <div
             style={getTileStyle(isSelected, isDragging, isValid)}
             className="tile tile-clickable border-dark">
-            <div className={"tile-text tile-" + tile.color}>{val}</div>
+            <div className={"tile-text tile-" + COLORS[tile.color]}>{val}</div>
             <div className={"tile-subscript"}></div>
         </div>
     )
@@ -24,14 +24,18 @@ function TilePreview({tile, isSelected, isDragging, isValid}) {
 
 function getTileStyle(selected, isDragging, isValid) {
     let backgroundColor = ''
+    let border = ''
+    let borderColor = ''
     if (isValid === true) {
         backgroundColor = 'rgba(159,255,113,0.68)'
     } else if (isValid === false) {
-        backgroundColor = 'rgba(255,85,85,0.88)'
+        backgroundColor = 'rgba(255,174,174,0.88)'
     }
 
     if (selected) {
         backgroundColor = '#c0c0c0'
+        border = '2px solid'
+        borderColor = '#6416ff'
     }
 
     return {
@@ -40,6 +44,8 @@ function getTileStyle(selected, isDragging, isValid) {
         fontSize: 25,
         fontWeight: 'bold',
         cursor: 'move',
+        border: border,
+        borderColor: borderColor,
     }
 }
 

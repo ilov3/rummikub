@@ -1,13 +1,13 @@
 const IS_DEV = process.env.NODE_ENV === 'development'
 console.debug('DEV ENV:', IS_DEV)
-const HAND_ROWS = 3
+const HAND_ROWS = IS_DEV ? 5 : 3
 const BOARD_ROWS = 9
 const HAND_COLS = 16
-const TILES_TO_DRAW = IS_DEV ? 20 : 14
+const TILES_TO_DRAW = IS_DEV ? 50 : 14
 const FIRST_MOVE_SCORE_LIMIT = IS_DEV ? 10 : 30;
 const BOARD_COLS = 30
-const BOARD_GRID_ID = 'board'
-const HAND_GRID_ID = 'hand'
+const BOARD_GRID_ID = 'b'
+const HAND_GRID_ID = 'h'
 const GAME_NAME = 'Rummikub'
 const LOBBY_SERVER_HOST = IS_DEV ? 'localhost' : 'rummi.uk'
 const LOBBY_SERVER_PORT = IS_DEV ? '9119' : '443'

@@ -7,7 +7,9 @@ import {
     drawTile,
     moveTiles,
     endTurn,
-    cancelMoves,
+    undo,
+    redo,
+    checkGameOver
 } from "./moves";
 import {
     HAND_GRID_ID,
@@ -19,16 +21,6 @@ import {
 } from "./constants";
 import _ from "lodash";
 import {isBoardValid} from "./moveValidation";
-
-
-function isGameOver(G, ctx) {
-    let flattened = _.flatten(G.hands[ctx.currentPlayer])
-    let tilesLeft = _.some(flattened, Boolean)
-    if (!tilesLeft && isBoardValid(G.board)) {
-        let points = countPoints(G.hands, ctx.currentPlayer)
-        return {winner: ctx.currentPlayer, points: points}
-    }
-}
 
 
 const Rummikub = {
@@ -59,13 +51,16 @@ const Rummikub = {
         }
         return {
             timePerTurn: setupData ? setupData.timePerTurn : 10,
-            tiles_pool: pool,
+            tilesPool: pool,
             hands: hands,
             board: board,
             prevBoard: board,
             tilePositions: tilePositions,
             prevTilePositions: tilePositions,
             firstMoveDone: firstMoveDone,
+            gameStateStack: [],
+            redoMoveStack: [],
+            lastCircle: [],
         }
     },
     moves: {
@@ -74,15 +69,16 @@ const Rummikub = {
         orderByValColor,
         moveTiles,
         endTurn,
-        cancelMoves,
+        undo,
+        redo,
     },
     turn: {
         activePlayers: {all: Stage.NULL},
         onBegin: onTurnBegin,
+        onEnd: checkGameOver,
     },
     minPlayers: 2,
     maxPlayers: 4,
-    endIf: isGameOver
 };
 export {Rummikub}
 

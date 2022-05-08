@@ -16,17 +16,13 @@ function freezeTmpTiles(G) {
     }
 }
 
-function isBoardDirty(G) {
+function isBoardHasNewTiles(G) {
     for (let tileId of Object.keys(G.tilePositions)) {
-        if (G.tilePositions[tileId].tmp) {
+        if (G.tilePositions[tileId] && G.tilePositions[tileId].tmp) {
             return true
         }
     }
     return false
-}
-
-function isBoardChanged(G) {
-    return !arraysEqual(G.board, G.prevBoard)
 }
 
 function extractSeqs(board) {
@@ -62,7 +58,6 @@ function isBoardValid(board) {
 
 function isMoveValid(G, ctx) {
     let seqs = extractSeqs(G.board)
-    console.debug(seqs)
 
     let newFound = _.find(seqs, function (seq) {
         for (let tile of seq) {
@@ -78,7 +73,6 @@ function isMoveValid(G, ctx) {
     }
     for (const seq of seqs) {
         if (!isSequenceValid(seq)) {
-            console.debug("MOVE FAIL: SEQ INV:", seq)
             return false
         }
     }
@@ -137,8 +131,7 @@ export {
     freezeTmpTiles,
     isFirstMoveValid,
     isFirstMove,
-    isBoardDirty,
-    isBoardChanged,
+    isBoardHasNewTiles,
     isCalledByActivePlayer,
     isBoardValid,
     extractSeqs,

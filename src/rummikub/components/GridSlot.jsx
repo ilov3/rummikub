@@ -1,4 +1,4 @@
-import React, {memo, useEffect, useMemo, useRef} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {useDrop} from 'react-dnd'
 import {Tile} from "./Tile";
 import {HAND_GRID_ID} from "../constants";
@@ -22,7 +22,6 @@ function useTraceUpdate(props) {
 }
 
 const GridSlot =
-    // memo(
     ({
          tile,
          col,
@@ -83,12 +82,6 @@ const GridSlot =
         }
 
     }
-// ,
-// (prevProps, nextProps) => {
-// console.debug(prevProps, nextProps)
-// return prevProps.tile === nextProps.tile && arraysEqual(prevProps.selectedTiles, nextProps.selectedTiles)
-// }
-// )
 
 
 export default GridSlot

@@ -24,7 +24,7 @@ body {
 div.buttons {
     margin: 0 auto;
     margin-top: 1vh;
-    width: 18.4vw;
+    width: 23vw;
 }
 
 .buttons button {
@@ -102,9 +102,9 @@ div.tile {
 }
 
 .tile-blue {
-    color: #0b0bbf;
+    color: #0a0ae3;
 }
 
 .tile-orange {
-    color: #ffa81c;
+    color: #d58300;
 }

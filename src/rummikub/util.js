@@ -1,8 +1,20 @@
 import _ from "lodash";
 
-const objectsEqual = (o1, o2) =>
-    Object.keys(o1).length === Object.keys(o2).length
-    && Object.keys(o1).every(p => o1[p] === o2[p]);
+let isPrimitive = (val) => {
+    if (val === null) {
+        return true;
+    }
+    if (typeof val == "object" || typeof val == "function") {
+        return false
+    } else {
+        return true
+    }
+}
+
+const objectsEqual = function (o1, o2) {
+    return isPrimitive(o1) ? o1 === o2 : Object.keys(o1).length === Object.keys(o2).length &&
+        Object.keys(o1).every(p => o1[p] === o2[p])
+};
 
 function arraysEqual(a1, a2) {
     return a1.length === a2.length && a1.every((o, idx) => objectsEqual(o, a2[idx]));
@@ -33,17 +45,24 @@ function getTileById(tileId) {
     return buildTileObj(parseInt(value), color, parseInt(variant))
 }
 
-const RedJoker = buildTileObj(0, 'red', 0)
-const BlackJoker = buildTileObj(0, 'black', 0)
+const COLOR = {
+    red: 0,
+    black: 1,
+    blue: 2,
+    orange: 3,
+}
+const COLORS = ['red', 'black', 'blue', 'orange']
+const RedJoker = buildTileObj(0, COLOR.red, 0)
+const BlackJoker = buildTileObj(0, COLOR.black, 0)
 
 function getTiles() {
     let tiles = []
     const Values = _.range(1, 14)
-    const Colors = ['red', 'black', 'blue', 'orange']
+
     for (let i = 0; i < 2; i++) {
-        for (const col of Colors) {
+        for (const col of COLORS) {
             for (const val of Values) {
-                let tile = buildTileObj(val, col, i)
+                let tile = buildTileObj(val, COLOR[col], i)
                 tiles.push(tile)
             }
         }
@@ -254,6 +273,7 @@ function countSeqScore(tiles) {
 }
 
 function isSequenceValid(tiles) {
+    console.debug('IS SEQ VALID:', tiles)
     return countSeqScore(tiles) > 0
 }
 
@@ -272,6 +292,28 @@ function countPoints(hands, excludeIndex) {
         }
     }
     return points
+}
+
+function findWinner(hands) {
+    let winner_points = 1000
+    let winner = 0
+
+    for (let i = 0; i < hands.length; i++) {
+        let points = 0
+        let hand = hands[i]
+        let flattened = _.flatten(hand)
+        for (let tile of flattened) {
+            if (tile) {
+                let tilePoint = isJoker(tile) ? 30 : tile.value
+                points += tilePoint
+            }
+        }
+        if (points < winner_points) {
+            winner_points = points
+            winner = i
+        }
+    }
+    return winner
 }
 
 function tryOrderTiles(tiles) {
@@ -363,4 +405,7 @@ export {
     reorderTiles,
     RedJoker,
     BlackJoker,
+    COLOR,
+    COLORS,
+    findWinner
 }
