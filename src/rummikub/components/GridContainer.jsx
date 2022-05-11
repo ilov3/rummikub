@@ -5,7 +5,7 @@ import GridSlot from "./GridSlot";
 const Centered = function ({cols, colWidth, children}) {
     return <div
         style={{
-            "width": `${cols * colWidth + (cols - 1) * 0.05}vw`,
+            "width": `${cols * colWidth}vw`,
             "margin": `0 auto`,
         }}
     >{children}</div>

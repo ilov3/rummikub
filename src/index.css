@@ -11,3 +11,29 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+@font-face {
+  font-family: 'ramadan';
+  src: local('ramadan'), url(./fonts/AwalRamadhan-0WlyX.otf) format('opentype');
+}
+
+@font-face {
+  font-family: 'zanzabar';
+  src: local('zanzabar'), url(./fonts/Zanzabar-0wK9.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'cheva';
+  src: local('cheva'), url(./fonts/ChevadisplayRegular-1G5ve.otf) format('truetype');
+}
+
+div.navbar span {
+  color: darkolivegreen;
+  font-family: ramadan;
+  font-size: 2rem;
+}
+
+div.navbar {
+  padding-top: 1rem;
+  padding-bottom: 0rem;
+}

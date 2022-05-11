@@ -31,6 +31,9 @@ const App = function () {
     window.addEventListener('keydown', KeyCheck, false);
     return (
         <>
+            <div className={"navbar justify-content-center"}>
+                <span>Rummikub</span>
+            </div>
             <Routes>
                 <Route path="/match/:matchID" element={<GameMatch/>}/>
                 <Route path="/join-match/:matchID" element={<JoinGamePage/>}/>

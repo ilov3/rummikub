@@ -21,7 +21,8 @@ const JoinGameForm = function () {
         })
     }
 
-    function onJoinMatch() {
+    function onJoinMatch(event) {
+        event.preventDefault();
         client.listSeats(matchID).then(matchData => {
             let seat = 0
             console.debug(matchData)
@@ -74,6 +75,7 @@ const JoinGameForm = function () {
             <Button
                 onClick={onJoinMatch}
                 variant="success"
+                type={"submit"}
                 disabled={!username || !matchID || (seats.length && seats.every(seat => seat.name))}>
                 Join
             </Button>

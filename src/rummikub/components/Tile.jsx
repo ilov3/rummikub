@@ -59,7 +59,7 @@ export function Tile({
                          handleLongPress,
                          onLongPressMouseUp
                      }) {
-    const longPressTimeout = 200
+    const longPressTimeout = 250
     const [longPressTriggered, setLongPress] = useState(false)
     const [{isDragging}, drag, preview] = useDrag(function () {
         return {
@@ -84,7 +84,7 @@ export function Tile({
     }, [preview]);
 
     const onLongPress = (e) => {
-        if (e.altKey) {
+        if (e.altKey || e.optionKey) {
             handleLongPress(tile.id, longPressTimeout)
         }
     };
@@ -95,8 +95,8 @@ export function Tile({
             setLongPress(false)
             return
         }
-        if (!e.altKey) {
-            handleTileSelection(tile.id, e.shiftKey, e.ctrlKey)
+        if (!(e.altKey || e.optionKey)) {
+            handleTileSelection(tile.id, e.shiftKey, e.ctrlKey || e.metaKey)
         }
     }, [longPressTriggered, handleTileSelection])
 

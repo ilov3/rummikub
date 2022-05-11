@@ -12,7 +12,8 @@ const CreateGameForm = function () {
     const [matchID, setMatchID] = useState('')
     const [timePerTurn, setTimePerTurn] = useState('30')
 
-    function onGameCreate() {
+    function onGameCreate(event) {
+        event.preventDefault();
         client.createGame(numPlayers, timePerTurn).then(
             (id) => {
                 console.debug(id)
@@ -73,7 +74,10 @@ const CreateGameForm = function () {
                     <option>60</option>
                 </Form.Control>
             </Form.Group>
-            <Button onClick={onGameCreate} disabled={!username || !numPlayers} variant="primary">
+            <Button onClick={onGameCreate}
+                    disabled={!username || !numPlayers}
+                    type={"submit"}
+                    variant="primary">
                 Create
             </Button>
             <div className="mt-1 text-success">{matchID ? `Match ID: ${matchID} created` : ''}</div>

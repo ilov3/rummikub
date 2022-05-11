@@ -20,7 +20,8 @@ const JoinGamePage = function () {
         })
     }, [matchID])
 
-    function onJoinMatch() {
+    function onJoinMatch(event) {
+        event.preventDefault()
         client.listSeats(matchID).then(matchData => {
             let seat = 0
             console.debug(matchData)
@@ -64,6 +65,7 @@ const JoinGamePage = function () {
                         <Button
                             onClick={onJoinMatch}
                             variant="success"
+                            type={"submit"}
                             disabled={!username || seats.every(seat => seat.name)}>
                             Join
                         </Button>

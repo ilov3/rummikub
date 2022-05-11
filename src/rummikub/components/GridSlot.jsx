@@ -77,7 +77,7 @@ const GridSlot =
         } else {
             return <div
                 ref={drop}
-                style={{backgroundColor: canDnD && isOver ? '#29a339' : ''}}
+                style={{backgroundColor: canDnD && isOver ? 'rgba(71,179,86,0.43)' : ''}}
                 className='grid-item'/>
         }
 

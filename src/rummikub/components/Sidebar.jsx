@@ -41,7 +41,7 @@ const Sidebar = function ({
                     <div key={data.id} className={`ml-2 text-${usernameStatus}`}>
                         {isYourTurn ?
                             <FontAwesomeIcon icon={faChevronRight}/> : ''} {data.name} {isYou ? '(You)' : ''}
-                        <span className="ml-2">{count2dArrItems(hands[data.id])} tiles on hand</span>
+                        <span className="ml-2">{count2dArrItems(hands[data.id])}</span>
                     </div>
                 )
                 if (data.name) {
