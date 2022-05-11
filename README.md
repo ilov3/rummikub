@@ -12,3 +12,32 @@ Some differences from original rules:
 
 ### Known limitations:
 - Turn timeout handled on client-side, so there is a way to bypass it
+
+### Local development
+Make sure node/npm installed
+
+1. Create .env file
+```shell
+cp .env.example .env
+```
+
+2. Run npm install
+```shell
+npm install
+```
+
+3. Launch frontend
+```shell
+npm start
+```
+
+4. Launch dev backend sever
+```shell
+npm run serve
+```
+
+### Running tests
+To run tests:
+```shell
+npm test
+```
