@@ -61,7 +61,7 @@ function isMoveValid(G, ctx) {
 
     let newFound = _.find(seqs, function (seq) {
         for (let tile of seq) {
-            let tilePos = G.tilePositions[tile.id]
+            let tilePos = G.tilePositions[tile]
             if (tilePos.tmp) {
                 return true
             }
@@ -92,7 +92,7 @@ function isFirstMoveValid(G, ctx) {
         let oldFound = false
         let newFound = false
         for (let tile of seq) {
-            let tilePos = G.tilePositions[tile.id]
+            let tilePos = G.tilePositions[tile]
             if (tilePos.tmp) {
                 newFound = true
             } else {
@@ -114,7 +114,7 @@ function isFirstMoveValid(G, ctx) {
             return false
         }
         let tile = seq[0]
-        let tilePos = G.tilePositions[tile.id]
+        let tilePos = G.tilePositions[tile]
         if (tilePos.tmp) {
             score += seqScore
         }

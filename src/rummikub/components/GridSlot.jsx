@@ -38,7 +38,7 @@ const GridSlot =
          onTileDragEnd,
          onLongPressMouseUp
      }) => {
-        const isSelected = tile && selectedTiles.indexOf(tile.id) !== -1 ? true : false
+        const isSelected = tile && selectedTiles.indexOf(tile) !== -1 ? true : false
 
         function collector(monitor) {
             return {isOver: monitor.isOver()}
@@ -59,13 +59,13 @@ const GridSlot =
         if (tile) {
             let isValid
             if (highlightTiles) {
-                isValid = validTiles.indexOf(tile.id) !== -1
+                isValid = validTiles.indexOf(tile) !== -1
             }
             return (
                 <div
                     ref={drop}
                     className='grid-item'
-                    key={tile.id}>
+                    key={tile}>
                     <Tile
                         tile={tile}
                         canDnD={canDnD}

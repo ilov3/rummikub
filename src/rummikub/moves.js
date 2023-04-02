@@ -8,7 +8,7 @@ import {
     isMoveValid,
     freezeTmpTiles, isBoardValid,
 } from "./moveValidation";
-import {countPoints, findWinner, getSecTs, reorderTiles} from "./util";
+import {countPoints, findWinner, getSecTs, getTileColor, getTileValue, reorderTiles} from "./util";
 import {original} from "immer"
 
 function getGameState(G) {
@@ -43,8 +43,8 @@ function pushTilesToGrid(tiles, grid, G, flags, ctx, override) {
                 let tile = tiles.shift()
                 if (tile) {
                     grid[row][col] = tile
-                    G.tilePositions[tile.id] = {
-                        id: tile.id,
+                    G.tilePositions[tile] = {
+                        id: tile,
                         col: col,
                         row: row,
                         ...flags,
@@ -89,7 +89,7 @@ function extractDups(arr) {
     let dupsMap = {}
     let dups = []
     let res = _.filter(arr, function (tile) {
-        let tileVal = tile && `${tile.color}:${tile.value}`
+        let tileVal = tile && `${getTileColor(tile)}:${getTileValue(tile)}`
         if (tile && !dupsMap.hasOwnProperty(tileVal)) {
             dupsMap[tileVal] = tileVal
             return true
@@ -218,12 +218,12 @@ function rollbackChanges(G, player, ctx) {
     let boardTiles = _.flatten(G.board)
     for (let tile of boardTiles) {
         if (tile) {
-            let tilePos = G.tilePositions[tile.id]
+            let tilePos = G.tilePositions[tile]
             if (tilePos.tmp) {
                 tilesToReturnBack.push(G.board[tilePos.row][tilePos.col])
-                G.tilePositions[tile.id] = null
+                G.tilePositions[tile] = null
             } else {
-                G.tilePositions[tile.id] = G.prevTilePositions[tile.id]
+                G.tilePositions[tile] = G.prevTilePositions[tile]
             }
         }
     }

@@ -64,7 +64,7 @@ export function Tile({
     const [{isDragging}, drag, preview] = useDrag(function () {
         return {
             type: 'tile',
-            item: {id: tile.id},
+            item: {id: tile},
             end: function (draggedItem, monitor) {
                 let didDrop = monitor.didDrop()
                 if (didDrop) {
@@ -85,7 +85,7 @@ export function Tile({
 
     const onLongPress = (e) => {
         if (e.altKey || e.optionKey) {
-            handleLongPress(tile.id, longPressTimeout)
+            handleLongPress(tile, longPressTimeout)
         }
     };
 
@@ -96,7 +96,7 @@ export function Tile({
             return
         }
         if (!(e.altKey || e.optionKey)) {
-            handleTileSelection(tile.id, e.shiftKey, e.ctrlKey || e.metaKey)
+            handleTileSelection(tile, e.shiftKey, e.ctrlKey || e.metaKey)
         }
     }, [longPressTriggered, handleTileSelection])
 
@@ -114,7 +114,7 @@ export function Tile({
         onClick={onClick}
         {...longPressEvent}
         ref={drag}
-        id={tile.id}>
+        id={tile}>
         <TilePreview
             tile={tile}
             isSelected={isSelected}

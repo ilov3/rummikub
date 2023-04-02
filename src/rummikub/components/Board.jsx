@@ -84,7 +84,7 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, ev
         for (const seq of seqs) {
             if (isSequenceValid(seq)) {
                 for (const tile of seq) {
-                    _validTiles.push(tile.id)
+                    _validTiles.push(tile)
                 }
             }
         }

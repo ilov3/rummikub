@@ -1,5 +1,5 @@
 import _ from "lodash";
-import {COLOR, COLORS} from "./constants";
+import { COLOR, COLORS } from "./constants";
 
 let isPrimitive = (val) => {
     if (val === null) {
@@ -78,7 +78,7 @@ function getTileObj(tile) {
     const value = getTileValue(tile)
     const color = getTileColor(tile)
     const variant = tile >> 6
-    return {value: value, color: color, id: `${variant}-${value}-${color}`, i: variant}
+    return { value: value, color: color, id: `${variant}-${value}-${color}`, i: variant }
 }
 
 function getTileById(tileId) {
@@ -93,10 +93,10 @@ function getTiles() {
     let tiles = []
     const Values = _.range(1, 14)
 
-    for (let i = 0; i < 2; i++) {
+    for (let variant = 0; variant < 2; variant++) {
         for (const col of COLORS) {
             for (const val of Values) {
-                let tile = buildTileObj(val, COLOR[col], i)
+                let tile = buildTileObj(val, COLOR[col], variant)
                 tiles.push(tile)
             }
         }
@@ -160,7 +160,7 @@ function extractJoker(tiles) {
 }
 
 function freezeJokerProp(joker, props) {
-    return {...joker, ...props}
+    return { ...joker, ...props }
 }
 
 function freezeJokersInRun(tiles) {
