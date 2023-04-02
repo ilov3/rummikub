@@ -8,7 +8,7 @@ import {
     isMoveValid,
     freezeTmpTiles, isBoardValid,
 } from "./moveValidation";
-import {countPoints, findWinner, reorderTiles} from "./util";
+import {countPoints, findWinner, getSecTs, reorderTiles} from "./util";
 import {original} from "immer"
 
 function getGameState(G) {
@@ -162,7 +162,7 @@ function moveTiles(G, ctx, col, row, destGridId, tileIdObj, selectedTiles) {
         let dest = null
 
         if (fromHandToBoard) {
-            if (!isCalledByActivePlayer(ctx)) return
+            if (!isCalledByActivePlayer(ctx) || ctx.phase === 'playersJoin') return
             source = G.hands[currPlayer]
             dest = G.board
             flags = {tmp: true, playerID: null}
@@ -206,7 +206,7 @@ function endTurn(G, ctx) {
     console.debug('END TURN CALLED', ctx.currentPlayer)
     if (isBoardHasNewTiles(G)) {
         console.debug('BOARD IS DIRTY')
-        onTurnEnd(G, ctx)
+        validatePlayerMove(G, ctx)
     } else {
         console.debug('BOARD IS CLEAN')
         drawTile(G, ctx, false)
@@ -263,9 +263,9 @@ function redo(G, ctx) {
     console.log('redo done')
 }
 
-function onTurnEnd(G, ctx) {
+function validatePlayerMove(G, ctx) {
     let player = ctx.currentPlayer
-    console.debug('ON TURN END', player)
+    console.debug('VALIDATE PLAYER MOVE', player)
     let moveValid = false
     if (isFirstMove(G, ctx)) {
         console.debug("FIRST MOVE")
@@ -285,8 +285,14 @@ function onTurnEnd(G, ctx) {
     }
 }
 
+function onPlayPhaseBegin(G, ctx) {
+    console.log('PLAY PHASE BEGIN', new Date())
+    G.timerExpireAt = getSecTs() + G.timePerTurn
+    return G
+}
+
 function onTurnBegin(G, ctx) {
-    console.debug('NEW TURN', new Date())
+    console.log('ON TURN BEGIN', new Date())
     G.gameStateStack = []
     G.redoMoveStack = []
     if (G.lastCircle.length) {
@@ -294,7 +300,16 @@ function onTurnBegin(G, ctx) {
     }
     G.prevBoard = original(G.board);
     G.prevTilePositions = original(G.tilePositions)
+    if (ctx.phase && ctx.phase === 'play') {
+        G.timerExpireAt = getSecTs() + G.timePerTurn + 1
+    }
     return G
+}
+
+function onTurnEnd(G, ctx) {
+    console.log('ON TURN END', new Date())
+    G.timerExpireAt = null
+    checkGameOver(G, ctx)
 }
 
 function checkGameOver(G, ctx) {
@@ -318,8 +333,10 @@ export {
     moveTiles,
     orderByColorVal,
     orderByValColor,
-    onTurnEnd,
+    validatePlayerMove,
     onTurnBegin,
+    onTurnEnd,
+    onPlayPhaseBegin,
     drawTile,
     getGridByIdPlayer,
     undo,

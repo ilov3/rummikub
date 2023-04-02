@@ -3,12 +3,13 @@ import Button from "react-bootstrap/Button";
 import {useState, useEffect} from "react";
 import {useNavigate, useParams} from "react-router-dom";
 import GameLobbyClient from "../lobbyClient";
+import {IS_DEV} from "../constants";
 
 const JoinGamePage = function () {
     let {matchID} = useParams();
     const client = new GameLobbyClient()
     const navigate = useNavigate()
-    const [username, setUsername] = useState('')
+    const [username, setUsername] = useState(IS_DEV ? 'test2' : '')
     const [seats, setSeats] = useState([])
 
     useEffect(function () {

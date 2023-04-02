@@ -4,9 +4,9 @@ import {
     RedJoker,
     BlackJoker,
     buildTileObj,
-    freezeJokerProp,
-    COLOR
+    freezeJokerProp, setTileValue
 } from "../rummikub/util";
+import {COLOR} from "../rummikub/constants";
 
 test('test freeze one joker', () => {
     let tiles = [
@@ -16,7 +16,7 @@ test('test freeze one joker', () => {
     ]
     let expected = [
         buildTileObj(2, COLOR.red, 0),
-        freezeJokerProp(BlackJoker, {value: 3}),
+        setTileValue(BlackJoker, 3),
         buildTileObj(4, COLOR.red, 0),
     ]
     expect(freezeJokersInRun(tiles)).toEqual(expected);
@@ -29,9 +29,9 @@ test('test freeze two jokers in the end', () => {
         BlackJoker
     ]
     let expected = [
-        freezeJokerProp(RedJoker, {value: 2}),
+        setTileValue(RedJoker, 2),
         buildTileObj(3, COLOR.red, 0),
-        freezeJokerProp(BlackJoker, {value: 4}),
+        setTileValue(BlackJoker, 4),
     ]
     expect(freezeJokersInRun(tiles)).toEqual(expected);
 });
@@ -43,8 +43,8 @@ test('test freeze two jokers', () => {
         buildTileObj(3, COLOR.red, 0),
     ]
     let expected = [
-        freezeJokerProp(RedJoker, {value: 1}),
-        freezeJokerProp(BlackJoker, {value: 2}),
+        setTileValue(RedJoker, 1),
+        setTileValue(BlackJoker, 2),
         buildTileObj(3, COLOR.red, 0),
     ]
     expect(freezeJokersInRun(tiles)).toEqual(expected);
@@ -60,9 +60,9 @@ test('test freeze two jokers in middle', () => {
     ]
     let expected = [
         buildTileObj(1, COLOR.red, 0),
-        freezeJokerProp(RedJoker, {value: 2}),
+        setTileValue(RedJoker, 2),
         buildTileObj(3, COLOR.red, 0),
-        freezeJokerProp(BlackJoker, {value: 4}),
+        setTileValue(BlackJoker, 4),
         buildTileObj(5, COLOR.red, 0),
     ]
     expect(freezeJokersInRun(tiles)).toEqual(expected);
@@ -77,7 +77,7 @@ test('test freeze one joker 1 after 13', () => {
     let expected = [
         buildTileObj(12, COLOR.red, 0),
         buildTileObj(13, COLOR.red, 0),
-        freezeJokerProp(BlackJoker, {value: 1})
+        setTileValue(BlackJoker, 1)
     ]
     expect(freezeJokersInRun(tiles)).toEqual(expected);
 });
@@ -90,8 +90,8 @@ test('test freeze two joker 1 after 13', () => {
     ]
     let expected = [
         buildTileObj(12, COLOR.red, 0),
-        freezeJokerProp(RedJoker, {value: 13}),
-        freezeJokerProp(BlackJoker, {value: 1}),
+        setTileValue(RedJoker, 13),
+        setTileValue(BlackJoker, 1),
     ]
     expect(freezeJokersInRun(tiles)).toEqual(expected);
 });
@@ -105,7 +105,7 @@ test('test freeze one joker in group', () => {
     let expected = [
         buildTileObj(12, COLOR.red, 0),
         buildTileObj(12, COLOR.blue, 0),
-        freezeJokerProp(BlackJoker, {value: 12})
+        setTileValue(BlackJoker, 12)
     ]
     expect(freezeJokersInGroup(tiles)).toEqual(expected);
 });
@@ -119,8 +119,8 @@ test('test freeze two joker in group', () => {
     ]
     let expected = [
         buildTileObj(12, COLOR.red, 0),
-        freezeJokerProp(RedJoker, {value: 12}),
-        freezeJokerProp(BlackJoker, {value: 12}),
+        setTileValue(RedJoker, 12),
+        setTileValue(BlackJoker, 12),
     ]
     expect(freezeJokersInGroup(tiles)).toEqual(expected);
 });

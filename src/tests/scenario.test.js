@@ -1,7 +1,7 @@
 import {Rummikub} from "../rummikub/Game";
 import {Client} from 'boardgame.io/client';
-import {getTiles, COLOR} from "../rummikub/util";
-import {BOARD_COLS, BOARD_GRID_ID, BOARD_ROWS, HAND_GRID_ID} from "../rummikub/constants";
+import {getTiles} from "../rummikub/util";
+import {BOARD_COLS, BOARD_GRID_ID, BOARD_ROWS, COLOR, HAND_GRID_ID} from "../rummikub/constants";
 
 test('test game finish on no tiles on hand', () => {
     const RummikubFinishGame = {

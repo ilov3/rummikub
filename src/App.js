@@ -32,7 +32,7 @@ const App = function () {
     return (
         <>
             <div className={"navbar justify-content-center"}>
-                <span>Rummikub</span>
+                <a href="/"><span>Rummikub</span></a>
             </div>
             <Routes>
                 <Route path="/match/:matchID" element={<GameMatch/>}/>

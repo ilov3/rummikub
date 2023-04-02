@@ -3,6 +3,7 @@ import Button from "react-bootstrap/Button";
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import GameLobbyClient from "../lobbyClient";
+import {IS_DEV} from "../constants";
 
 const JoinGameForm = function () {
     const client = new GameLobbyClient()

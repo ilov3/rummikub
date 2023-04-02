@@ -2,6 +2,7 @@ import {Stage} from 'boardgame.io/core';
 import {countPoints, getTiles} from './util'
 import {
     onTurnBegin,
+    onPlayPhaseBegin,
     orderByValColor,
     orderByColorVal,
     drawTile,
@@ -9,7 +10,7 @@ import {
     endTurn,
     undo,
     redo,
-    checkGameOver
+    onTurnEnd
 } from "./moves";
 import {
     HAND_GRID_ID,
@@ -39,9 +40,9 @@ const Rummikub = {
                 for (let col = 0; col < HAND_COLS; col++) {
                     if (tilesToDraw > 0) {
                         let tile = pool.pop()
-                        let tilePos = {id: tile.id, col: col, row: row, gridId: HAND_GRID_ID, playerID: p.toString()}
+                        let tilePos = {id: tile, col: col, row: row, gridId: HAND_GRID_ID, playerID: p.toString()}
                         hand[row][col] = tile
-                        tilePositions[tile.id] = tilePos
+                        tilePositions[tile] = tilePos
                         tilesToDraw--
                     }
                 }
@@ -51,6 +52,7 @@ const Rummikub = {
         }
         return {
             timePerTurn: setupData ? setupData.timePerTurn : 10,
+            timerExpireAt: null,
             tilesPool: pool,
             hands: hands,
             board: board,
@@ -61,6 +63,22 @@ const Rummikub = {
             gameStateStack: [],
             redoMoveStack: [],
             lastCircle: [],
+        }
+    },
+    phases: {
+        playersJoin: {
+            start: true,
+            moves: {
+                orderByColorVal,
+                orderByValColor,
+                moveTiles,
+                undo,
+                redo,
+            },
+            next: 'play'
+        },
+        play: {
+            onBegin: onPlayPhaseBegin,
         }
     },
     moves: {
@@ -75,7 +93,7 @@ const Rummikub = {
     turn: {
         activePlayers: {all: Stage.NULL},
         onBegin: onTurnBegin,
-        onEnd: checkGameOver,
+        onEnd: onTurnEnd,
     },
     minPlayers: 2,
     maxPlayers: 4,

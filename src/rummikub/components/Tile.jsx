@@ -2,21 +2,21 @@ import React, {useCallback, useState} from 'react';
 import {useEffect} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faSmileBeam} from "@fortawesome/free-solid-svg-icons";
-import {COLORS, isJoker} from "../util";
+import {getTileValue, isJoker, getTileColor} from "../util";
 import {useDrag} from 'react-dnd';
 import {getEmptyImage} from "react-dnd-html5-backend";
 import _ from "lodash";
 import useLongPress from "../useLongPress";
-import {HAND_GRID_ID} from "../constants";
+import {COLORS, HAND_GRID_ID} from "../constants";
 
 function TilePreview({tile, isSelected, isDragging, isValid}) {
     if (!tile) return null
-    let val = isJoker(tile) ? <FontAwesomeIcon icon={faSmileBeam}/> : tile.value
+    let val = isJoker(tile) ? <FontAwesomeIcon icon={faSmileBeam}/> : getTileValue(tile)
     return (
         <div
             style={getTileStyle(isSelected, isDragging, isValid)}
             className="tile tile-clickable border-dark">
-            <div className={"tile-text tile-" + COLORS[tile.color]}>{val}</div>
+            <div className={"tile-text tile-" + COLORS[getTileColor(tile)]}>{val}</div>
             <div className={"tile-subscript"}></div>
         </div>
     )
