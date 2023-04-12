@@ -1,4 +1,5 @@
-import {countSeqScore, RedJoker, BlackJoker, buildTileObj, COLOR} from "../rummikub/util";
+import {countSeqScore, RedJoker, BlackJoker, buildTileObj} from "../rummikub/util";
+import {COLOR} from "../rummikub/constants";
 
 test('test count score one joker', () => {
     let tiles = [

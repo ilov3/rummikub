@@ -3,6 +3,7 @@ import {useDrop} from 'react-dnd'
 import {Tile} from "./Tile";
 import {HAND_GRID_ID} from "../constants";
 import {arraysEqual} from "../util";
+import {debounce, throttle} from "lodash";
 
 
 function useTraceUpdate(props) {
@@ -35,9 +36,18 @@ const GridSlot =
          handleTileSelection,
          handleLongPress,
          onTileDragEnd,
-         onLongPressMouseUp
+         onLongPressMouseUp,
+         moves,
+         playerID,
+         draggingTiles,
      }) => {
-        const isSelected = tile && selectedTiles.indexOf(tile.id) !== -1 ? true : false
+        const isSelected = tile && selectedTiles.indexOf(tile) !== -1 ? true : false
+        const isDragging = tile && draggingTiles.indexOf(tile) !== -1 ? true : false
+
+        function collector(monitor) {
+            return {isOver: monitor.isOver()}
+        }
+
         const [{isOver}, drop] = useDrop(() => ({
             accept: 'tile',
             drop: function (tileIdObj) {
@@ -47,21 +57,19 @@ const GridSlot =
             canDrop: () => {
                 return canDnD
             },
-            collect: monitor => ({
-                isOver: monitor.isOver(),
-            }),
+            collect: collector,
         }), [tile, canDnD, selectedTiles])
 
         if (tile) {
             let isValid
             if (highlightTiles) {
-                isValid = validTiles.indexOf(tile.id) !== -1
+                isValid = validTiles.indexOf(tile) !== -1
             }
             return (
                 <div
                     ref={drop}
                     className='grid-item'
-                    key={tile.id}>
+                    key={tile}>
                     <Tile
                         tile={tile}
                         canDnD={canDnD}
@@ -71,6 +79,10 @@ const GridSlot =
                         handleTileSelection={handleTileSelection}
                         handleLongPress={handleLongPress}
                         onLongPressMouseUp={onLongPressMouseUp}
+                        moves={moves}
+                        playerID={playerID}
+                        isDragging={isDragging}
+                        selectedTiles={selectedTiles}
                     />
                 </div>
             )

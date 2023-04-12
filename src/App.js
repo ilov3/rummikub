@@ -13,7 +13,7 @@ import JoinGamePage from "./rummikub/components/JoinGamePage";
 
 function getTestPlayerClient() {
     let PlayerClient = Client({
-        numPlayers: 2,
+        numPlayers: 1,
         game: Rummikub,
         board: RummikubBoard,
     })
@@ -32,7 +32,7 @@ const App = function () {
     return (
         <>
             <div className={"navbar justify-content-center"}>
-                <span>Rummikub</span>
+                <a href="/"><span>Rummikub</span></a>
             </div>
             <Routes>
                 <Route path="/match/:matchID" element={<GameMatch/>}/>

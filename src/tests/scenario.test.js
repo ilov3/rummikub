@@ -1,8 +1,15 @@
 import {Rummikub} from "../rummikub/Game";
 import {Client} from 'boardgame.io/client';
-import {getTiles, COLOR} from "../rummikub/util";
-import {BOARD_COLS, BOARD_GRID_ID, BOARD_ROWS, HAND_GRID_ID} from "../rummikub/constants";
+import {buildTileObj, getTiles} from "../rummikub/util";
+import {BOARD_COLS, BOARD_GRID_ID, BOARD_ROWS, COLOR, HAND_GRID_ID} from "../rummikub/constants";
+import {Local} from "boardgame.io/multiplayer";
 
+const blue11 = buildTileObj(11, COLOR.blue, 0)
+const blue12 = buildTileObj(12, COLOR.blue, 0)
+const blue13 = buildTileObj(13, COLOR.blue, 0)
+const red11 = buildTileObj(11, COLOR.red, 0)
+const red12 = buildTileObj(12, COLOR.red, 0)
+const red13 = buildTileObj(13, COLOR.red, 0)
 test('test game finish on no tiles on hand', () => {
     const RummikubFinishGame = {
         ...Rummikub,
@@ -11,9 +18,9 @@ test('test game finish on no tiles on hand', () => {
             let hands = [
                 [
                     [
-                        {color: COLOR.blue, value: 11, id: "0-11-2", i: 0},
-                        {color: COLOR.blue, value: 12, id: "0-12-2", i: 0},
-                        {color: COLOR.blue, value: 13, id: "0-13-2", i: 0},
+                        buildTileObj(11, COLOR.blue, 0),
+                        buildTileObj(12, COLOR.blue, 0),
+                        buildTileObj(13, COLOR.blue, 0),
                         null, null, null, null, null, null, null, null, null, null, null,
                     ],
                     [
@@ -25,9 +32,9 @@ test('test game finish on no tiles on hand', () => {
                 ],
                 [
                     [
-                        {color: COLOR.red, value: 11, id: "0-11-0", i: 0},
-                        {color: COLOR.red, value: 12, id: "0-12-0", i: 0},
-                        {color: COLOR.red, value: 13, id: "0-13-0", i: 0},
+                        buildTileObj(11, COLOR.red, 0),
+                        buildTileObj(12, COLOR.red, 0),
+                        buildTileObj(13, COLOR.red, 0),
                         null, null, null, null, null, null, null, null, null, null, null,
                     ],
                     [
@@ -40,14 +47,15 @@ test('test game finish on no tiles on hand', () => {
             ]
             let board = Array.from(Array(BOARD_ROWS), _ => Array(BOARD_COLS).fill(null));
             let firstMoveDone = [true, true]
-            let tilePositions = {
-                "0-11-2": {id: "0-11-2", col: 0, row: 0, gridId: HAND_GRID_ID, playerID: "0"},
-                "0-12-2": {id: "0-12-2", col: 1, row: 0, gridId: HAND_GRID_ID, playerID: "0"},
-                "0-13-2": {id: "0-13-2", col: 2, row: 0, gridId: HAND_GRID_ID, playerID: "0"},
-                "0-11-0": {id: "0-11-0", col: 0, row: 0, gridId: HAND_GRID_ID, playerID: "1"},
-                "0-12-0": {id: "0-12-0", col: 1, row: 0, gridId: HAND_GRID_ID, playerID: "1"},
-                "0-13-0": {id: "0-13-0", col: 2, row: 0, gridId: HAND_GRID_ID, playerID: "1"},
-            }
+
+            let tilePositions = {}
+            tilePositions[43] = {id: 43, col: 0, row: 0, gridId: HAND_GRID_ID, playerID: "0"}
+            tilePositions[44] = {id: 44, col: 1, row: 0, gridId: HAND_GRID_ID, playerID: "0"}
+            tilePositions[45] = {id: 45, col: 2, row: 0, gridId: HAND_GRID_ID, playerID: "0"}
+            tilePositions[11] = {id: 11, col: 0, row: 0, gridId: HAND_GRID_ID, playerID: "1"}
+            tilePositions[12] = {id: 12, col: 1, row: 0, gridId: HAND_GRID_ID, playerID: "1"}
+            tilePositions[13] = {id: 13, col: 2, row: 0, gridId: HAND_GRID_ID, playerID: "1"}
+
             return {
                 timePerTurn: 60,
                 tilesPool: pool,
@@ -63,18 +71,28 @@ test('test game finish on no tiles on hand', () => {
             }
         }
     }
-
-    const client = Client({
+    const spec = {
         game: RummikubFinishGame,
+        multiplayer: Local(),
+    }
+    const client1 = Client({
+        ...spec, playerID: "0",
     });
+    const client2 = Client({
+        ...spec, playerID: "1",
+    });
+    client1.start()
+    client2.start()
+    client1.events.endPhase()
+    client2.events.endPhase()
 
-    client.moves.moveTiles(0, 0, BOARD_GRID_ID, {id: "0-11-2"}, [
-        "0-11-2",
-        "0-12-2",
-        "0-13-2",
+    client1.moves.moveTiles(0, 0, BOARD_GRID_ID, {id: 43}, [
+        43,
+        44,
+        45,
     ])
-    client.events.endTurn()
-    const {G, ctx} = client.store.getState();
+    client1.events.endTurn()
+    const {G, ctx} = client1.getState();
 
     expect(ctx.gameover).toEqual({winner: '0', points: 36})
 });
@@ -83,14 +101,14 @@ test('test game finish on no tiles on pool', () => {
     const RummikubFinishGame = {
         ...Rummikub,
         setup: function () {
-            let pool = [{color: COLOR.blue, value: 9, id: "0-9-2", i: 0}]
+            let pool = [buildTileObj(9, COLOR.blue, 0),]
             let hands = [
                 [
                     [
-                        {color: COLOR.blue, value: 11, id: "0-11-2", i: 0},
-                        {color: COLOR.blue, value: 12, id: "0-12-2", i: 0},
-                        {color: COLOR.blue, value: 13, id: "0-13-2", i: 0},
-                        {color: COLOR.blue, value: 1, id: "0-1-2", i: 0},
+                        buildTileObj(11, COLOR.blue, 0),
+                        buildTileObj(12, COLOR.blue, 0),
+                        buildTileObj(13, COLOR.blue, 0),
+                        buildTileObj(1, COLOR.blue, 0),
                         null, null, null, null, null, null, null, null, null, null, null,
                     ],
                     [
@@ -102,10 +120,10 @@ test('test game finish on no tiles on pool', () => {
                 ],
                 [
                     [
-                        {color: COLOR.red, value: 11, id: "0-11-0", i: 0},
-                        {color: COLOR.red, value: 12, id: "0-12-0", i: 0},
-                        {color: COLOR.red, value: 13, id: "0-13-0", i: 0},
-                        {color: COLOR.red, value: 1, id: "0-1-0", i: 0},
+                        buildTileObj(11, COLOR.red, 0),
+                        buildTileObj(12, COLOR.red, 0),
+                        buildTileObj(13, COLOR.red, 0),
+                        buildTileObj(1, COLOR.red, 0),
                         null, null, null, null, null, null, null, null, null, null, null,
                     ],
                     [
@@ -118,16 +136,17 @@ test('test game finish on no tiles on pool', () => {
             ]
             let board = Array.from(Array(BOARD_ROWS), _ => Array(BOARD_COLS).fill(null));
             let firstMoveDone = [true, true]
-            let tilePositions = {
-                "0-11-2": {id: "0-11-2", col: 0, row: 0, gridId: HAND_GRID_ID, playerID: "0"},
-                "0-12-2": {id: "0-12-2", col: 1, row: 0, gridId: HAND_GRID_ID, playerID: "0"},
-                "0-13-2": {id: "0-13-2", col: 2, row: 0, gridId: HAND_GRID_ID, playerID: "0"},
-                "0-10-2": {id: "0-10-2", col: 3, row: 0, gridId: HAND_GRID_ID, playerID: "0"},
-                "0-11-0": {id: "0-11-0", col: 0, row: 0, gridId: HAND_GRID_ID, playerID: "1"},
-                "0-12-0": {id: "0-12-0", col: 1, row: 0, gridId: HAND_GRID_ID, playerID: "1"},
-                "0-13-0": {id: "0-13-0", col: 2, row: 0, gridId: HAND_GRID_ID, playerID: "1"},
-                "0-1-0": {id: "0-1-0", col: 3, row: 0, gridId: HAND_GRID_ID, playerID: "1"},
-            }
+            let tilePositions = {}
+            tilePositions[43] = {id: 43, col: 0, row: 0, gridId: HAND_GRID_ID, playerID: "0"}
+            tilePositions[44] = {id: 44, col: 1, row: 0, gridId: HAND_GRID_ID, playerID: "0"}
+            tilePositions[45] = {id: 45, col: 2, row: 0, gridId: HAND_GRID_ID, playerID: "0"}
+            tilePositions[42] = {id: 42, col: 3, row: 0, gridId: HAND_GRID_ID, playerID: "0"}
+
+            tilePositions[11] = {id: 11, col: 0, row: 0, gridId: HAND_GRID_ID, playerID: "1"}
+            tilePositions[12] = {id: 12, col: 1, row: 0, gridId: HAND_GRID_ID, playerID: "1"}
+            tilePositions[13] = {id: 13, col: 2, row: 0, gridId: HAND_GRID_ID, playerID: "1"}
+            tilePositions[10] = {id: 10, col: 3, row: 0, gridId: HAND_GRID_ID, playerID: "1"}
+
             return {
                 timePerTurn: 60,
                 tilesPool: pool,
@@ -144,31 +163,42 @@ test('test game finish on no tiles on pool', () => {
         }
     }
 
-    const client = Client({
+    const spec = {
         game: RummikubFinishGame,
+        multiplayer: Local(),
+    }
+    const client0 = Client({
+        ...spec, playerID: "0",
     });
+    const client1 = Client({
+        ...spec, playerID: "1",
+    });
+    client0.start()
+    client1.start()
+    client0.events.endPhase()
+    client1.events.endPhase()
 
     // p0 move
-    client.moves.moveTiles(0, 0, BOARD_GRID_ID, {id: "0-11-2"}, [
-        "0-11-2",
-        "0-12-2",
-        "0-13-2",
+    client0.moves.moveTiles(0, 0, BOARD_GRID_ID, {id: 43}, [
+        43,
+        44,
+        45,
     ])
-    client.moves.endTurn()
+    client0.moves.endTurn()
     // p1 move
-    client.moves.moveTiles(0, 1, BOARD_GRID_ID, {id: "0-11-0"}, [
-        "0-11-0",
-        "0-12-0",
-        "0-13-0",
+    client1.moves.moveTiles(0, 1, BOARD_GRID_ID, {id: 11}, [
+        11,
+        12,
+        13,
     ])
-    client.moves.endTurn()
+    client1.moves.endTurn()
     // p0 move
-    client.moves.drawTile()
-    let {G, ctx} = client.store.getState();
+    client0.moves.drawTile()
+    let {G, ctx} = client0.getState();
     expect(G.lastCircle).toEqual(['0', '1']);
     // p1 move
-    client.moves.endTurn();
+    client1.moves.endTurn();
     // client.moves.endTurn()
-    ({G, ctx} = client.store.getState());
+    ({G, ctx} = client0.getState());
     expect(ctx.gameover).toEqual({winner: '1', points: 10})
 });

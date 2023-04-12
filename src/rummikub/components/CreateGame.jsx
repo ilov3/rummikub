@@ -3,14 +3,15 @@ import Button from "react-bootstrap/Button";
 import GameLobbyClient from "../lobbyClient";
 import {useState} from "react";
 import {useNavigate} from "react-router-dom"
+import {IS_DEV} from "../constants";
 
 const CreateGameForm = function () {
     const client = new GameLobbyClient()
     const navigate = useNavigate()
-    const [username, setUsername] = useState('')
-    const [numPlayers, setNumPlayers] = useState('4')
+    const [username, setUsername] = useState(IS_DEV ? 'test' : '')
+    const [numPlayers, setNumPlayers] = useState(IS_DEV ? '2' : '4')
     const [matchID, setMatchID] = useState('')
-    const [timePerTurn, setTimePerTurn] = useState('30')
+    const [timePerTurn, setTimePerTurn] = useState(IS_DEV ? '10' : '30')
 
     function onGameCreate(event) {
         event.preventDefault();

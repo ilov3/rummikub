@@ -32,42 +32,13 @@ const TileDragLayer = function ({G, playerID, selectedTiles}) {
         isDragging: monitor.isDragging(),
     }));
 
-
-    // const dndMngr = useDragDropManager()
-    // const registry = dndMngr.getRegistry()
-    //
-    // function isDraggingHack() {
-    //     let dragSource
-    //     registry.dragSources.forEach(function (value, key) {
-    //         if (value.spec.item.id === item.id) {
-    //             dragSource = value
-    //         }
-    //     })
-    //     let collector = dragSource.spec.collect(dragSource.monitor)
-    //     return collector.isDragging
-    // }
-
     function renderItem() {
         if (selectedTiles.includes(item.id)) {
             return selectedTiles.map(function (tileId) {
-                let tilePos = G.tilePositions[tileId]
-                let tile = null
-                if (tilePos.gridId === HAND_GRID_ID) {
-                    tile = G.hands[playerID][tilePos.row][tilePos.col]
-                } else {
-                    tile = G.board[tilePos.row][tilePos.col]
-                }
-                return <TilePreview key={tileId} tile={tile}/>
+                return <TilePreview key={tileId} tile={tileId} isDragging={isDragging}/>
             })
         }
-        let tilePos = G.tilePositions[item.id]
-        let tile = null
-        if (tilePos.gridId === HAND_GRID_ID) {
-            tile = G.hands[playerID][tilePos.row][tilePos.col]
-        } else {
-            tile = G.board[tilePos.row][tilePos.col]
-        }
-        return <TilePreview tile={tile}/>;
+        return <TilePreview tile={item.id} isDragging={isDragging}/>;
     }
 
     if (!isDragging) {

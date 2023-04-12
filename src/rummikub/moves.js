@@ -8,18 +8,10 @@ import {
     isMoveValid,
     freezeTmpTiles, isBoardValid,
 } from "./moveValidation";
-import {countPoints, findWinner, reorderTiles} from "./util";
+import {countPoints, findWinner, getSecTs, getTileColor, getTileValue, groupValidSequences, getGameState} from "./util";
 import {original} from "immer"
-
-function getGameState(G) {
-    return {
-        hands: original(G.hands),
-        board: original(G.board),
-        prevBoard: original(G.prevBoard),
-        tilePositions: original(G.tilePositions),
-        prevTilePositions: original(G.prevTilePositions),
-    }
-}
+import {current} from 'immer';
+import {pushTilesToGrid} from "./orderTiles";
 
 function getGridByIdPlayer(G, gridId, playerId) {
     let grid = null
@@ -33,31 +25,8 @@ function getGridByIdPlayer(G, gridId, playerId) {
     return grid
 }
 
-function pushTilesToGrid(tiles, grid, G, flags, ctx, override) {
-    let rowsCnt = grid.length
-    let colsCnt = grid[0].length
 
-    for (let row = 0; row < rowsCnt; row++) {
-        for (let col = 0; col < colsCnt; col++) {
-            if (!grid[row][col] || override) {
-                let tile = tiles.shift()
-                if (tile) {
-                    grid[row][col] = tile
-                    G.tilePositions[tile.id] = {
-                        id: tile.id,
-                        col: col,
-                        row: row,
-                        ...flags,
-                    }
-                } else {
-                    grid[row][col] = null
-                }
-            }
-        }
-    }
-}
-
-function drawTile(G, ctx, doRollback=true) {
+function drawTile(G, ctx, doRollback = true) {
     if (!isCalledByActivePlayer(ctx)) return
     if (doRollback) {
         rollbackChanges(G, ctx.currentPlayer, ctx)
@@ -73,7 +42,8 @@ function drawTile(G, ctx, doRollback=true) {
             tiles.push(tile)
         }
     }
-
+    console.log(`tiles pool: ${current(G.tilesPool)}`)
+    console.log(`last circle ${current(G.lastCircle)}`)
     if (!G.tilesPool.length) {
         G.lastCircle.push(ctx.currentPlayer)
     }
@@ -85,50 +55,6 @@ function drawTile(G, ctx, doRollback=true) {
     ctx.events.endTurn()
 }
 
-function extractDups(arr) {
-    let dupsMap = {}
-    let dups = []
-    let res = _.filter(arr, function (tile) {
-        let tileVal = tile && `${tile.color}:${tile.value}`
-        if (tile && !dupsMap.hasOwnProperty(tileVal)) {
-            dupsMap[tileVal] = tileVal
-            return true
-        } else {
-            tile && dups.push(tile)
-        }
-    })
-    return [res, dups]
-}
-
-function orderByColorVal(G, ctx) {
-    if (isCalledByActivePlayer(ctx)) {
-        G.gameStateStack.push(getGameState(G))
-    }
-    let tiles = G.hands[ctx.playerID]
-    let flattened = _.flatten(tiles)
-    let [arr, dups] = extractDups(flattened)
-
-    let sorted = _.orderBy(arr, ['color', 'value'], ['asc'])
-    sorted.push(..._.orderBy(dups, ['color', 'value'], ['asc']))
-
-    pushTilesToGrid(reorderTiles(sorted), G.hands[ctx.playerID], G,
-        {gridId: HAND_GRID_ID, playerID: ctx.playerID}, ctx, true)
-}
-
-function orderByValColor(G, ctx) {
-    if (isCalledByActivePlayer(ctx)) {
-        G.gameStateStack.push(getGameState(G))
-    }
-    let tiles = G.hands[ctx.playerID]
-    let flattened = _.flatten(tiles)
-    let [arr, dups] = extractDups(flattened)
-
-    let sorted = _.orderBy(arr, ['value', 'color'], ['asc'])
-    sorted.push(..._.orderBy(dups, ['value', 'color'], ['asc']))
-
-    pushTilesToGrid(reorderTiles(sorted), G.hands[ctx.playerID], G,
-        {gridId: HAND_GRID_ID, playerID: ctx.playerID}, ctx, true)
-}
 
 function isOverlap(G, ctx, col, row, destGridId, tileId) {
     let currPlayer = ctx.playerID
@@ -162,7 +88,7 @@ function moveTiles(G, ctx, col, row, destGridId, tileIdObj, selectedTiles) {
         let dest = null
 
         if (fromHandToBoard) {
-            if (!isCalledByActivePlayer(ctx)) return
+            if (!isCalledByActivePlayer(ctx) || ctx.phase === 'playersJoin') return
             source = G.hands[currPlayer]
             dest = G.board
             flags = {tmp: true, playerID: null}
@@ -206,7 +132,7 @@ function endTurn(G, ctx) {
     console.debug('END TURN CALLED', ctx.currentPlayer)
     if (isBoardHasNewTiles(G)) {
         console.debug('BOARD IS DIRTY')
-        onTurnEnd(G, ctx)
+        validatePlayerMove(G, ctx)
     } else {
         console.debug('BOARD IS CLEAN')
         drawTile(G, ctx, false)
@@ -218,12 +144,12 @@ function rollbackChanges(G, player, ctx) {
     let boardTiles = _.flatten(G.board)
     for (let tile of boardTiles) {
         if (tile) {
-            let tilePos = G.tilePositions[tile.id]
+            let tilePos = G.tilePositions[tile]
             if (tilePos.tmp) {
                 tilesToReturnBack.push(G.board[tilePos.row][tilePos.col])
-                G.tilePositions[tile.id] = null
+                G.tilePositions[tile] = null
             } else {
-                G.tilePositions[tile.id] = G.prevTilePositions[tile.id]
+                G.tilePositions[tile] = G.prevTilePositions[tile]
             }
         }
     }
@@ -263,9 +189,9 @@ function redo(G, ctx) {
     console.log('redo done')
 }
 
-function onTurnEnd(G, ctx) {
+function validatePlayerMove(G, ctx) {
     let player = ctx.currentPlayer
-    console.debug('ON TURN END', player)
+    console.debug('VALIDATE PLAYER MOVE', player)
     let moveValid = false
     if (isFirstMove(G, ctx)) {
         console.debug("FIRST MOVE")
@@ -285,8 +211,14 @@ function onTurnEnd(G, ctx) {
     }
 }
 
+function onPlayPhaseBegin(G, ctx) {
+    console.log('PLAY PHASE BEGIN', new Date())
+    G.timerExpireAt = getSecTs() + G.timePerTurn
+    return G
+}
+
 function onTurnBegin(G, ctx) {
-    console.debug('NEW TURN', new Date())
+    console.log('ON TURN BEGIN', new Date())
     G.gameStateStack = []
     G.redoMoveStack = []
     if (G.lastCircle.length) {
@@ -294,7 +226,16 @@ function onTurnBegin(G, ctx) {
     }
     G.prevBoard = original(G.board);
     G.prevTilePositions = original(G.tilePositions)
+    if (ctx.phase && ctx.phase === 'play') {
+        G.timerExpireAt = getSecTs() + G.timePerTurn + 1
+    }
     return G
+}
+
+function onTurnEnd(G, ctx) {
+    console.log('ON TURN END', new Date())
+    G.timerExpireAt = null
+    checkGameOver(G, ctx)
 }
 
 function checkGameOver(G, ctx) {
@@ -316,10 +257,10 @@ function checkGameOver(G, ctx) {
 export {
     endTurn,
     moveTiles,
-    orderByColorVal,
-    orderByValColor,
-    onTurnEnd,
+    validatePlayerMove,
     onTurnBegin,
+    onTurnEnd,
+    onPlayPhaseBegin,
     drawTile,
     getGridByIdPlayer,
     undo,

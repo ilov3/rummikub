@@ -31,9 +31,14 @@ div.navbar span {
   color: darkolivegreen;
   font-family: ramadan;
   font-size: 2rem;
+  text-decoration: none
 }
 
 div.navbar {
   padding-top: 1rem;
   padding-bottom: 0rem;
+}
+
+div.navbar a:hover, a:visited, a:link, a:active {
+  text-decoration: none;
 }

@@ -27,7 +27,7 @@ function handleTileSelection(G, state, setState, playerID, tileId, shiftKey, ctr
             tiles.push(getTileById(tileId))
             let sorted = tryOrderTiles(tiles)
             return {
-                selectedTiles: sorted.map(tile => tile.id),
+                selectedTiles: sorted,
                 lastSelectedTileId: prevState.lastSelectedTileId
             }
         })
@@ -48,8 +48,8 @@ function handleTileSelection(G, state, setState, playerID, tileId, shiftKey, ctr
                 grid = transpose(grid)
                 gridRow = grid[tilePos.col]
             }
-            let findex = _.findIndex(gridRow, tile => tile && tile.id === tileId)
-            let sindex = _.findIndex(gridRow, tile => tile && tile.id === lastSelectedTileId)
+            let findex = _.findIndex(gridRow, tile => tile && tile === tileId)
+            let sindex = _.findIndex(gridRow, tile => tile && tile === lastSelectedTileId)
             console.debug(findex, sindex)
             let left = _.min([findex, sindex])
             let right = _.max([findex, sindex])
@@ -63,7 +63,7 @@ function handleTileSelection(G, state, setState, playerID, tileId, shiftKey, ctr
                 }
             }
             let sorted = tryOrderTiles(selectedTiles)
-            setState({selectedTiles: sorted.map(tile => tile.id), lastSelectedTileId: null})
+            setState({selectedTiles: sorted.map(tile => tile), lastSelectedTileId: null})
         }
     }
 }
@@ -71,7 +71,7 @@ function handleTileSelection(G, state, setState, playerID, tileId, shiftKey, ctr
 function handleLongPress(G, playerID, setState, longPressTimeoutId, tileId, timeout) {
     // if (!(this.state.selectedTiles.length === 0 || this.state.selectedTiles.includes(tileId))) return
     let defaultTimeout = timeout ? timeout : 200
-    const selectedTileIds = (a) => a.map(tile => tile.id)
+    const selectedTileIds = (a) => a.map(tile => tile)
     let selectedTiles = []
     console.debug('LONG PRESS STARTED')
     let firstCallDone = false;
@@ -118,26 +118,11 @@ function handleLongPress(G, playerID, setState, longPressTimeoutId, tileId, time
                 return
             }
         }
-        longPressTimeoutId.current = setTimeout(cb.bind(this), defaultTimeout, tile.id)
+        longPressTimeoutId.current = setTimeout(cb.bind(this), defaultTimeout, tile)
     }), defaultTimeout, tileId)
-}
-
-function clearTurnTimeout(matchID, playerID) {
-    localStorage.setItem(`${matchID}:${playerID}:expire`, '')
-}
-
-function updateTurnTimeout(matchID, playerID, value) {
-    localStorage.setItem(`${matchID}:${playerID}:expire`, value)
-}
-
-function getTurnTimeout(matchID, playerID) {
-    return localStorage.getItem(`${matchID}:${playerID}:expire`)
 }
 
 export {
     handleTileSelection,
     handleLongPress,
-    clearTurnTimeout,
-    updateTurnTimeout,
-    getTurnTimeout,
 }

@@ -9,25 +9,29 @@ import {Button} from "react-bootstrap";
 import {FRONTEND_PORT, LOBBY_SERVER_HOST, LOBBY_SERVER_PROTO, IS_DEV} from "../constants";
 
 const Sidebar = function ({
-                              boardIsValid,
                               tilesOnPool,
                               currentPlayer,
                               playerID,
                               matchID,
                               matchData,
                               gameover,
-                              onTimeout,
                               timePerTurn,
+                              timerExpireAt,
+                              onTimeout,
                               hands
                           }) {
-    let showTurnTimer = matchData.length && !gameover && _.every(matchData, (item) => item.name) && currentPlayer === playerID
-    let matchLink = `${LOBBY_SERVER_PROTO}://${LOBBY_SERVER_HOST}:${FRONTEND_PORT}/join-match/${matchID}`
+    let showTurnTimer = matchData.length && !gameover && _.every(matchData, (item) => item.name)
+    let hostAddr = IS_DEV ? `${LOBBY_SERVER_HOST}:${FRONTEND_PORT}` : LOBBY_SERVER_HOST
+    let matchLink = `${LOBBY_SERVER_PROTO}://${hostAddr}/join-match/${matchID}`
     return (
         <div className='sidenav'>
             <div className="ml-2">
-                <Button size='sm' variant='outline-success' onClick={() => {
-                    navigator.clipboard.writeText(matchLink)
-                }}>Copy match link</Button>
+                <Button size='sm'
+                        title={'Copy match link into the buffer'}
+                        variant='outline-success'
+                        onClick={() => {
+                            navigator.clipboard.writeText(matchLink)
+                        }}>Copy match link</Button>
             </div>
             <div className='mt-3 ml-2'>Match id: {matchID}</div>
             <div className='mt-3 ml-2'>Tiles in bag: {tilesOnPool}</div>
@@ -39,29 +43,25 @@ const Sidebar = function ({
                 let usernameStatus = data.isConnected ? 'success' : 'danger'
                 let usernameElem = (
                     <div key={data.id} className={`ml-2 text-${usernameStatus}`}>
-                        {isYourTurn ?
-                            <FontAwesomeIcon icon={faChevronRight}/> : ''} {data.name} {isYou ? '(You)' : ''}
+                        {isYourTurn ? <span>Your move: </span> : ''}
+                        {isYou ? <b style={{fontSize: 20}}>{data.name}</b> : data.name}
                         <span className="ml-2">{count2dArrItems(hands[data.id])}</span>
                     </div>
                 )
                 if (data.name) {
                     elem = usernameElem
-
                 } else {
                     elem = <div key={data.id} className="ml-2 text-warning">Not joined yet</div>
                 }
                 return elem
             })}
-            <div className="ml-2 {}">{ boardIsValid ? 'Board is valid': 'Board invalid'}</div>
             <div
                 className="ml-2 text-danger">
                 {gameover ? `Winner: ${matchData[parseInt(gameover.winner)].name}, ${gameover.points} points` : ''}
             </div>
-            {showTurnTimer ? <TurnTimer
-                matchID={matchID}
-                playerID={playerID}
-                secondsLeft={timePerTurn}
-                onTimeout={onTimeout}/> : ''}
+            {true ? <TurnTimer onTimeout={onTimeout}
+                               timePerTurn={timePerTurn}
+                               timerExpireAt={timerExpireAt}/> : ''}
         </div>
     )
 

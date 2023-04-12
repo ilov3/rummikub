@@ -1,51 +1,39 @@
-import React from "react";
-import {updateTurnTimeout, getTurnTimeout} from "../boardUtil";
+import {useState, useEffect, useRef} from "react";
+import {getSecTs} from "../util";
+import _ from "lodash";
 
-class TurnTimer extends React.Component {
-    constructor(props) {
-        super(props);
-        let timerExpireAt = getTurnTimeout(this.props.matchID, this.props.playerID)
-        if (timerExpireAt) {
-            let secondsLeft = Math.round((parseInt(timerExpireAt) - Date.now()) / 1000)
-            secondsLeft = secondsLeft > 1 ? secondsLeft : 1
-            this.state = {secondsLeft: secondsLeft}
-        } else {
-            updateTurnTimeout(
-                this.props.matchID,
-                this.props.playerID,
-                this.props.secondsLeft * 1000 + Date.now()
-            )
-            this.state = {secondsLeft: props.secondsLeft};
-        }
-        this.timerId = null
-    }
+const TurnTimer = function ({timePerTurn, timerExpireAt, onTimeout}) {
+    const [timer, setTimer] = useState(
+        timerExpireAt ? timerExpireAt - getSecTs() : timePerTurn
+    );
+    const requestRef = useRef();
 
-    componentDidMount() {
-        this.timerId = setInterval((function () {
-            this.setState((function (prevState) {
-                let secondsLeft = prevState.secondsLeft - 1
-                if (secondsLeft <= 0) {
-                    this.props.onTimeout()
-                }
-                return {secondsLeft: secondsLeft}
-            }).bind(this))
-        }).bind(this), 1000)
-    }
+    useEffect(() => {
+        const updateTimer = () => {
+            const remainingTime = timerExpireAt ? timerExpireAt - getSecTs() : timePerTurn;
+            setTimer(Math.min(remainingTime, timePerTurn));
 
-    componentWillUnmount() {
-        this.timerId && clearInterval(this.timerId)
-    }
+            if (remainingTime <= 0) {
+                onTimeout();
+            } else {
+                requestRef.current = requestAnimationFrame(updateTimer);
+            }
+        };
 
-    render() {
-        return (
-            <div className="ml-2">
-                <p className={this.state.secondsLeft < 10 ? 'text-danger' : ''}
-                   style={
-                       {fontSize: 66}
-                   }>{this.state.secondsLeft}</p>
-            </div>
-        )
-    }
-}
+        requestRef.current = requestAnimationFrame(updateTimer);
 
-export default TurnTimer
+        return () => {
+            cancelAnimationFrame(requestRef.current);
+        };
+    }, [timePerTurn, timerExpireAt, onTimeout]);
+
+    return (
+        <div className="mt-4 ml-4">
+      <span style={{fontSize: 66}} className={timer < 10 ? "text-danger" : ""}>
+        {timer}
+      </span>
+        </div>
+    );
+};
+
+export default TurnTimer;
