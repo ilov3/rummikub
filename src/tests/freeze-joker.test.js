@@ -8,7 +8,7 @@ import {
 } from "../rummikub/util";
 import {COLOR} from "../rummikub/constants";
 
-test('test freeze one joker', () => {
+test('test freeze one RedJoker', () => {
     let tiles = [
         buildTileObj(2, COLOR.red, 0),
         BlackJoker,
@@ -68,7 +68,7 @@ test('test freeze two jokers in middle', () => {
     expect(freezeJokersInRun(tiles)).toEqual(expected);
 });
 
-test('test freeze one joker 1 after 13', () => {
+test('test freeze one RedJoker 1 after 13', () => {
     let tiles = [
         buildTileObj(12, COLOR.red, 0),
         buildTileObj(13, COLOR.red, 0),
@@ -82,7 +82,7 @@ test('test freeze one joker 1 after 13', () => {
     expect(freezeJokersInRun(tiles)).toEqual(expected);
 });
 
-test('test freeze two joker 1 after 13', () => {
+test('test freeze two RedJoker 1 after 13', () => {
     let tiles = [
         buildTileObj(12, COLOR.red, 0),
         RedJoker,
@@ -96,7 +96,7 @@ test('test freeze two joker 1 after 13', () => {
     expect(freezeJokersInRun(tiles)).toEqual(expected);
 });
 
-test('test freeze one joker in group', () => {
+test('test freeze one RedJoker in group', () => {
     let tiles = [
         buildTileObj(12, COLOR.red, 0),
         buildTileObj(12, COLOR.blue, 0),
@@ -110,8 +110,7 @@ test('test freeze one joker in group', () => {
     expect(freezeJokersInGroup(tiles)).toEqual(expected);
 });
 
-
-test('test freeze two joker in group', () => {
+test('test freeze two RedJoker in group', () => {
     let tiles = [
         buildTileObj(12, COLOR.red, 0),
         RedJoker,
@@ -124,3 +123,43 @@ test('test freeze two joker in group', () => {
     ]
     expect(freezeJokersInGroup(tiles)).toEqual(expected);
 });
+
+test('should freeze a single joker in a valid run', () => {
+    const tiles = [buildTileObj(1, 0, 0), RedJoker, buildTileObj(3, 0, 0)];
+    const expected = [buildTileObj(1, 0, 0), buildTileObj(2, 0, 0), buildTileObj(3, 0, 0)];
+    const result = freezeJokersInRun(tiles);
+    expect(result).toEqual(expected);
+});
+
+test('should handle two adjacent jokers in a valid run', () => {
+    const tiles = [buildTileObj(1, 0, 0), RedJoker, RedJoker, buildTileObj(4, 0, 0)];
+    const expected = [buildTileObj(1, 0, 0), buildTileObj(2, 0, 0), buildTileObj(3, 0, 0), buildTileObj(4, 0, 0)];
+    const result = freezeJokersInRun(tiles);
+    expect(result).toEqual(expected);
+});
+
+
+test('should return null for an invalid run with jokers', () => {
+    const tiles = [
+        buildTileObj(1, 0, 0),
+        RedJoker,
+        BlackJoker,
+        buildTileObj(2, 0, 0)];
+    const result = freezeJokersInRun(tiles);
+    expect(result).toBeNull();
+});
+
+test('should handle a valid run with no jokers', () => {
+    const tiles = [buildTileObj(1, 0, 0), buildTileObj(2, 0, 0), buildTileObj(3, 0, 0)];
+    const expected = [buildTileObj(1, 0, 0), buildTileObj(2, 0, 0), buildTileObj(3, 0, 0)];
+    const result = freezeJokersInRun(tiles);
+    expect(result).toEqual(expected);
+});
+
+test('should handle wrap around run', () => {
+    const tiles = [buildTileObj(12, 0, 0), RedJoker, buildTileObj(1, 0, 0)];
+    const expected = [buildTileObj(12, 0, 0), buildTileObj(13, 0, 0), buildTileObj(1, 0, 0)];
+    const result = freezeJokersInRun(tiles);
+    expect(result).toEqual(expected);
+});
+

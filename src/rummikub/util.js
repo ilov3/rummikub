@@ -1,5 +1,6 @@
 import _ from "lodash";
-import { COLOR, COLORS } from "./constants";
+import {COLOR, COLORS} from "./constants";
+import {original} from "immer";
 
 let isPrimitive = (val) => {
     if (val === null) {
@@ -38,16 +39,17 @@ function count2dArrItems(arr2d) {
 }
 
 function buildTileObj(value, color, variant) {
-    // console.log('BUILDING TILE AS INT FROM:', value, color, variant)
     let tile = variant
     tile = tile << 2
     tile += color
     tile = tile << 4
     tile += value
-    // console.log('PARSING BACK:', getTileObj(tile))
-    // console.log(tile, value, tile.toString(2))
     return tile
-    // return {value: value, color: color, id: `${variant}-${value}-${color}`, i: variant}
+}
+
+function deactivateTileVariant(tile) {
+    const variantMask = ~(0b11 << 6);
+    return tile & variantMask;
 }
 
 function getTileValue(tile) {
@@ -59,35 +61,26 @@ function getTileColor(tile) {
 }
 
 function setTileValue(tile, value) {
-    let copy = tile
-    copy >>= 4
-    copy += value
-    return copy
+    const colorAndIdMask = 0b1111110000;
+    const colorAndId = tile & colorAndIdMask;
+    return colorAndId | value;
 }
 
 function setTileColor(tile, color) {
-    let copy = tile >> 6
-    copy <<= 2
-    copy += color
-    copy <<= 4
-    copy += getTileValue(tile)
-    return copy
+    const idAndValueMask = 0b111111;
+    const idAndValue = tile & idAndValueMask;
+    const newColor = color << 4;
+    return idAndValue | newColor;
 }
 
-function getTileObj(tile) {
-    const value = getTileValue(tile)
-    const color = getTileColor(tile)
-    const variant = tile >> 6
-    return { value: value, color: color, id: `${variant}-${value}-${color}`, i: variant }
-}
 
 function getTileById(tileId) {
     const [variant, value, color] = tileId.split('-')
     return buildTileObj(parseInt(value), color, parseInt(variant))
 }
 
-const RedJoker = buildTileObj(0, COLOR.red, 0)
-const BlackJoker = buildTileObj(0, COLOR.black, 0)
+const RedJoker = buildTileObj(14, COLOR.red, 0)
+const BlackJoker = buildTileObj(14, COLOR.black, 0)
 
 function getTiles() {
     let tiles = []
@@ -107,7 +100,7 @@ function getTiles() {
 }
 
 function isJoker(tile) {
-    if (getTileValue(tile) === 0) {
+    if (getTileValue(tile) === 14) {
         return true
     } else {
         return false
@@ -160,41 +153,42 @@ function extractJoker(tiles) {
 }
 
 function freezeJokerProp(joker, props) {
-    return { ...joker, ...props }
+    return {...joker, ...props}
 }
 
 function freezeJokersInRun(tiles) {
     console.debug('call', tiles)
 
     let freezed = [];
-    let left = 0;
+    let left_index = 0;
     let twoJokersNear = false
-    for (let right = 1; right < tiles.length; right++) {
-        console.debug(right)
-        let curr = tiles[left]
-        let next = tiles[right]
-        console.debug(curr, next)
-        if (isJoker(curr) && isJoker(next)) {
+    for (let right_index = 1; right_index < tiles.length; right_index++) {
+        console.debug(right_index)
+        let current_tile = tiles[left_index]
+        let next_tile = tiles[right_index]
+        console.debug(current_tile, next_tile)
+        if (isJoker(current_tile) && isJoker(next_tile)) {
             twoJokersNear = true
-            if (right === tiles.length - 1) {
-                let copy = setTileValue(curr, getTileValue(tiles[left - 1]) + 1)
+            if (right_index === tiles.length - 1) {
+                let copy = setTileValue(current_tile, getTileValue(tiles[left_index - 1]) + 1)
                 if (getTileValue(copy) === 14) {
                     return null
                 }
                 freezed.push(copy)
-                freezed.push(next)
-                left++
+                freezed.push(next_tile)
+                left_index++
                 continue
             }
-            freezed.push(curr)
-            left++
+            freezed.push(current_tile)
+            left_index++
             continue
-        } else if (isJoker(curr) && !isJoker(next)) {
+        } else if (isJoker(current_tile) && !isJoker(next_tile)) {
             console.debug('curr is joker; next is not')
-            let copy = setTileValue(curr, getTileValue(next) - 1)
+            let copy = setTileValue(current_tile, getTileValue(next_tile) - 1)
             console.debug(getTileValue(copy))
-            if (getTileValue(copy) === 0) {
-                if (left === 0) {
+            if (getTileValue(copy) === 0) { // computed value will be zero only if -> [...J 1...]
+                let tile_after_next = tiles[right_index + 1]
+                if (left_index === 0 || tile_after_next) {
                     return null
                 } else {
                     copy = setTileValue(copy, 13)
@@ -202,33 +196,34 @@ function freezeJokersInRun(tiles) {
             }
             freezed.push(copy)
             console.debug('after push', freezed)
-            if (right === tiles.length - 1) {
-                freezed.push(next)
+            if (right_index === tiles.length - 1) {
+                freezed.push(next_tile)
             }
-            left++
+            left_index++
             continue
-        } else if (!isJoker(curr) && isJoker(next)) {
-            freezed.push(curr)
-            if (right === tiles.length - 1) {
-                let copy = setTileValue(next, getTileValue(curr) + 1 === 14 ? 1 : getTileValue(curr) + 1)
-                if (getTileValue(copy) === 2 && right !== 1) {
+        } else if (!isJoker(current_tile) && isJoker(next_tile)) {
+            freezed.push(current_tile)
+            if (right_index === tiles.length - 1) {
+                let copy = setTileValue(next_tile, getTileValue(current_tile) + 1 === 14 ? 1 : getTileValue(current_tile) + 1)
+                if (getTileValue(copy) === 2 && right_index !== 1) {
                     return null
                 }
                 freezed.push(copy)
             }
-            left++
+            left_index++
             continue
         } else {
-            freezed.push(curr)
-            if (right === tiles.length - 1) {
-                freezed.push(next)
+            freezed.push(current_tile)
+            if (right_index === tiles.length - 1) {
+                freezed.push(next_tile)
             }
-            left++
+            left_index++
             continue
         }
     }
     if (twoJokersNear) {
         freezed = freezeJokersInRun(freezed)
+        if (freezed === null) return null
     }
     console.assert(freezed.length === tiles.length)
     freezed.forEach((tile) => console.debug(getTileValue(tile)))
@@ -272,7 +267,7 @@ function countSeqScore(tiles) {
             let curr = freezed[left]
             let next = freezed[right]
             if (getTileValue(next) - getTileValue(curr) === 1) {
-                score += curr.value
+                score += getTileValue(curr)
                 if (right === tiles.length - 1) {
                     score += getTileValue(next)
                 }
@@ -291,7 +286,14 @@ function countSeqScore(tiles) {
     }
 
     if (isDiffColor(tiles) && isSameValue(tiles)) {
-        let freezed = jokersCount ? freezeJokersInGroup(tiles) : tiles
+        let freezed = tiles
+        if (jokersCount) {
+            if (tiles.length > 4) {
+                return 0
+            } else {
+                freezed = freezeJokersInGroup(tiles)
+            }
+        }
         score = getTileValue(freezed[0]) * freezed.length
     } else {
         return 0
@@ -301,7 +303,7 @@ function countSeqScore(tiles) {
 }
 
 function isSequenceValid(tiles) {
-    console.debug('IS SEQ VALID:', tiles)
+    // console.debug('IS SEQ VALID:', tiles.forEach(tile => getTileValue(tile)))
     return countSeqScore(tiles) > 0
 }
 
@@ -370,7 +372,7 @@ function tryOrderTiles(tiles) {
     return tiles
 }
 
-function reorderTiles(tiles) {
+function groupValidSequences(tiles) {
     if (!tiles || tiles.length < 3) {
         return tiles
     }
@@ -379,7 +381,7 @@ function reorderTiles(tiles) {
     let validSeqs = []
     let validTiles = new Set()
     let index = pointer + 3
-    while (index <= tiles.length) {
+    while (index <= tiles.length + 1) {
         let validSeqFound = false
         while (true) {
             let slice = tiles.slice(pointer, index)
@@ -390,7 +392,7 @@ function reorderTiles(tiles) {
             } else {
                 if (validSeqFound) {
                     validSeqs.push(slice.slice(0, -1))
-                    pointer = index
+                    pointer = index - 1
                     index += 3
                     validSeqFound = false
                 } else {
@@ -403,6 +405,7 @@ function reorderTiles(tiles) {
                 if (validSeqFound) {
                     validSeqs.push(slice)
                 }
+                index++
                 break
             }
         }
@@ -422,6 +425,16 @@ function reorderTiles(tiles) {
 
 function getSecTs() {
     return Math.floor((new Date).getTime() / 1000)
+}
+
+function getGameState(G) {
+    return {
+        hands: original(G.hands),
+        board: original(G.board),
+        prevBoard: original(G.prevBoard),
+        tilePositions: original(G.tilePositions),
+        prevTilePositions: original(G.prevTilePositions),
+    }
 }
 
 export {
@@ -444,9 +457,11 @@ export {
     transpose,
     count2dArrItems,
     countPoints,
-    reorderTiles,
+    groupValidSequences,
     RedJoker,
     BlackJoker,
     findWinner,
     getSecTs,
+    getGameState,
+    deactivateTileVariant,
 }

@@ -34,6 +34,9 @@ const GridContainer = function ({
                                     onLongPressMouseUp,
                                     handleLongPress,
                                     handleTileSelection,
+                                    moves,
+                                    playerID,
+                                    draggingTiles
                                 }) {
     let colWidth = 2.2
     let gridItems = []
@@ -55,7 +58,11 @@ const GridContainer = function ({
                 row={y}
                 col={x}
                 key={key}
-                tile={tile}/>
+                tile={tile}
+                moves={moves}
+                playerID={playerID}
+                draggingTiles={draggingTiles}
+            />
             gridItems.push(gridTile)
             key++
         }

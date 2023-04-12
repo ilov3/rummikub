@@ -15,8 +15,9 @@ const Sidebar = function ({
                               matchID,
                               matchData,
                               gameover,
-                              timer,
-                              checkTimerExpired,
+                              timePerTurn,
+                              timerExpireAt,
+                              onTimeout,
                               hands
                           }) {
     let showTurnTimer = matchData.length && !gameover && _.every(matchData, (item) => item.name)
@@ -58,7 +59,9 @@ const Sidebar = function ({
                 className="ml-2 text-danger">
                 {gameover ? `Winner: ${matchData[parseInt(gameover.winner)].name}, ${gameover.points} points` : ''}
             </div>
-            {true ? <TurnTimer timer={timer} checkTimerExpired={checkTimerExpired}/> : ''}
+            {true ? <TurnTimer onTimeout={onTimeout}
+                               timePerTurn={timePerTurn}
+                               timerExpireAt={timerExpireAt}/> : ''}
         </div>
     )
 

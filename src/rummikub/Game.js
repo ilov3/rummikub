@@ -3,8 +3,6 @@ import {countPoints, getTiles} from './util'
 import {
     onTurnBegin,
     onPlayPhaseBegin,
-    orderByValColor,
-    orderByColorVal,
     drawTile,
     moveTiles,
     endTurn,
@@ -22,7 +20,37 @@ import {
 } from "./constants";
 import _ from "lodash";
 import {isBoardValid} from "./moveValidation";
+import {orderByColorVal, orderByValColor} from "./orderTiles";
 
+function startDragging(G, ctx, tileID, initialPosition, playerID, selectedTiles, containerWidth, containerHeight) {
+    G.draggingTile = {
+        tileID: tileID,
+        selectedTiles: selectedTiles,
+        initialPosition: {
+            x: initialPosition.x / containerWidth,
+            y: initialPosition.y / containerHeight,
+        },
+        currentPosition: {
+            x: initialPosition.x / containerWidth,
+            y: initialPosition.y / containerHeight,
+        },
+        playerID: playerID,
+    };
+};
+
+
+function updateDragging(G, ctx, currentPosition, windowWidth, windowHeight) {
+    if (G.draggingTile) {
+        G.draggingTile.currentPosition = {
+            x: currentPosition.x / windowWidth,
+            y: currentPosition.y / windowHeight,
+        }
+    };
+};
+
+function endDragging(G, ctx) {
+    G.draggingTile = null;
+};
 
 const Rummikub = {
     name: GAME_NAME,
@@ -74,6 +102,9 @@ const Rummikub = {
                 moveTiles,
                 undo,
                 redo,
+                startDragging,
+                updateDragging,
+                endDragging
             },
             next: 'play'
         },
@@ -89,6 +120,9 @@ const Rummikub = {
         endTurn,
         undo,
         redo,
+        startDragging,
+        updateDragging,
+        endDragging,
     },
     turn: {
         activePlayers: {all: Stage.NULL},

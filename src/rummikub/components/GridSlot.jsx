@@ -36,9 +36,13 @@ const GridSlot =
          handleTileSelection,
          handleLongPress,
          onTileDragEnd,
-         onLongPressMouseUp
+         onLongPressMouseUp,
+         moves,
+         playerID,
+         draggingTiles,
      }) => {
         const isSelected = tile && selectedTiles.indexOf(tile) !== -1 ? true : false
+        const isDragging = tile && draggingTiles.indexOf(tile) !== -1 ? true : false
 
         function collector(monitor) {
             return {isOver: monitor.isOver()}
@@ -75,6 +79,10 @@ const GridSlot =
                         handleTileSelection={handleTileSelection}
                         handleLongPress={handleLongPress}
                         onLongPressMouseUp={onLongPressMouseUp}
+                        moves={moves}
+                        playerID={playerID}
+                        isDragging={isDragging}
+                        selectedTiles={selectedTiles}
                     />
                 </div>
             )

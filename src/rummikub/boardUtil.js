@@ -122,22 +122,7 @@ function handleLongPress(G, playerID, setState, longPressTimeoutId, tileId, time
     }), defaultTimeout, tileId)
 }
 
-function clearTurnTimeout(matchID, playerID) {
-    localStorage.setItem(`${matchID}:${playerID}:expire`, '')
-}
-
-function updateTurnTimeout(matchID, playerID, value) {
-    localStorage.setItem(`${matchID}:${playerID}:expire`, value)
-}
-
-function getTurnTimeout(matchID, playerID) {
-    return localStorage.getItem(`${matchID}:${playerID}:expire`)
-}
-
 export {
     handleTileSelection,
     handleLongPress,
-    clearTurnTimeout,
-    updateTurnTimeout,
-    getTurnTimeout,
 }

@@ -8,18 +8,10 @@ import {
     isMoveValid,
     freezeTmpTiles, isBoardValid,
 } from "./moveValidation";
-import {countPoints, findWinner, getSecTs, getTileColor, getTileValue, reorderTiles} from "./util";
+import {countPoints, findWinner, getSecTs, getTileColor, getTileValue, groupValidSequences, getGameState} from "./util";
 import {original} from "immer"
-
-function getGameState(G) {
-    return {
-        hands: original(G.hands),
-        board: original(G.board),
-        prevBoard: original(G.prevBoard),
-        tilePositions: original(G.tilePositions),
-        prevTilePositions: original(G.prevTilePositions),
-    }
-}
+import {current} from 'immer';
+import {pushTilesToGrid} from "./orderTiles";
 
 function getGridByIdPlayer(G, gridId, playerId) {
     let grid = null
@@ -33,31 +25,8 @@ function getGridByIdPlayer(G, gridId, playerId) {
     return grid
 }
 
-function pushTilesToGrid(tiles, grid, G, flags, ctx, override) {
-    let rowsCnt = grid.length
-    let colsCnt = grid[0].length
 
-    for (let row = 0; row < rowsCnt; row++) {
-        for (let col = 0; col < colsCnt; col++) {
-            if (!grid[row][col] || override) {
-                let tile = tiles.shift()
-                if (tile) {
-                    grid[row][col] = tile
-                    G.tilePositions[tile] = {
-                        id: tile,
-                        col: col,
-                        row: row,
-                        ...flags,
-                    }
-                } else {
-                    grid[row][col] = null
-                }
-            }
-        }
-    }
-}
-
-function drawTile(G, ctx, doRollback=true) {
+function drawTile(G, ctx, doRollback = true) {
     if (!isCalledByActivePlayer(ctx)) return
     if (doRollback) {
         rollbackChanges(G, ctx.currentPlayer, ctx)
@@ -73,7 +42,8 @@ function drawTile(G, ctx, doRollback=true) {
             tiles.push(tile)
         }
     }
-
+    console.log(`tiles pool: ${current(G.tilesPool)}`)
+    console.log(`last circle ${current(G.lastCircle)}`)
     if (!G.tilesPool.length) {
         G.lastCircle.push(ctx.currentPlayer)
     }
@@ -85,50 +55,6 @@ function drawTile(G, ctx, doRollback=true) {
     ctx.events.endTurn()
 }
 
-function extractDups(arr) {
-    let dupsMap = {}
-    let dups = []
-    let res = _.filter(arr, function (tile) {
-        let tileVal = tile && `${getTileColor(tile)}:${getTileValue(tile)}`
-        if (tile && !dupsMap.hasOwnProperty(tileVal)) {
-            dupsMap[tileVal] = tileVal
-            return true
-        } else {
-            tile && dups.push(tile)
-        }
-    })
-    return [res, dups]
-}
-
-function orderByColorVal(G, ctx) {
-    if (isCalledByActivePlayer(ctx)) {
-        G.gameStateStack.push(getGameState(G))
-    }
-    let tiles = G.hands[ctx.playerID]
-    let flattened = _.flatten(tiles)
-    let [arr, dups] = extractDups(flattened)
-
-    let sorted = _.orderBy(arr, ['color', 'value'], ['asc'])
-    sorted.push(..._.orderBy(dups, ['color', 'value'], ['asc']))
-
-    pushTilesToGrid(reorderTiles(sorted), G.hands[ctx.playerID], G,
-        {gridId: HAND_GRID_ID, playerID: ctx.playerID}, ctx, true)
-}
-
-function orderByValColor(G, ctx) {
-    if (isCalledByActivePlayer(ctx)) {
-        G.gameStateStack.push(getGameState(G))
-    }
-    let tiles = G.hands[ctx.playerID]
-    let flattened = _.flatten(tiles)
-    let [arr, dups] = extractDups(flattened)
-
-    let sorted = _.orderBy(arr, ['value', 'color'], ['asc'])
-    sorted.push(..._.orderBy(dups, ['value', 'color'], ['asc']))
-
-    pushTilesToGrid(reorderTiles(sorted), G.hands[ctx.playerID], G,
-        {gridId: HAND_GRID_ID, playerID: ctx.playerID}, ctx, true)
-}
 
 function isOverlap(G, ctx, col, row, destGridId, tileId) {
     let currPlayer = ctx.playerID
@@ -331,8 +257,6 @@ function checkGameOver(G, ctx) {
 export {
     endTurn,
     moveTiles,
-    orderByColorVal,
-    orderByValColor,
     validatePlayerMove,
     onTurnBegin,
     onTurnEnd,

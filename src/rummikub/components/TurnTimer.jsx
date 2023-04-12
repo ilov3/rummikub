@@ -1,21 +1,39 @@
-import {useState, useEffect} from "react";
-import {updateTurnTimeout, getTurnTimeout, clearTurnTimeout} from "../boardUtil";
+import {useState, useEffect, useRef} from "react";
+import {getSecTs} from "../util";
+import _ from "lodash";
 
+const TurnTimer = function ({timePerTurn, timerExpireAt, onTimeout}) {
+    const [timer, setTimer] = useState(
+        timerExpireAt ? timerExpireAt - getSecTs() : timePerTurn
+    );
+    const requestRef = useRef();
 
-const TurnTimer = function ({timer, checkTimerExpired}) {
     useEffect(() => {
-        const timerId = setInterval(function () {
-            checkTimerExpired(timerId)
-        }, 1000)
+        const updateTimer = () => {
+            const remainingTime = timerExpireAt ? timerExpireAt - getSecTs() : timePerTurn;
+            setTimer(Math.min(remainingTime, timePerTurn));
+
+            if (remainingTime <= 0) {
+                onTimeout();
+            } else {
+                requestRef.current = requestAnimationFrame(updateTimer);
+            }
+        };
+
+        requestRef.current = requestAnimationFrame(updateTimer);
 
         return () => {
-            timerId && clearInterval(timerId)
-        }
-    }, [checkTimerExpired])
+            cancelAnimationFrame(requestRef.current);
+        };
+    }, [timePerTurn, timerExpireAt, onTimeout]);
 
-    return <div className="mt-4 ml-4">
-        <span style={{fontSize: 66}} className={timer < 10 ? 'text-danger' : ''}>{timer}</span>
-    </div>
-}
+    return (
+        <div className="mt-4 ml-4">
+      <span style={{fontSize: 66}} className={timer < 10 ? "text-danger" : ""}>
+        {timer}
+      </span>
+        </div>
+    );
+};
 
-export default TurnTimer
+export default TurnTimer;

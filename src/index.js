@@ -10,9 +10,13 @@ import * as Sentry from "@sentry/react";
 import {BrowserTracing} from "@sentry/tracing";
 import {SENTRY_DSN} from "./rummikub/constants";
 
+if (process.env.NODE_ENV === 'development') {
+    console.debug = console.log = console.warn = console.error = () => {
+    };
+}
+
 Sentry.init({
-    dsn: SENTRY_DSN,
-    integrations: [new BrowserTracing()],
+    dsn: SENTRY_DSN, integrations: [new BrowserTracing()],
 
     // Set tracesSampleRate to 1.0 to capture 100%
     // of transactions for performance monitoring.
@@ -22,11 +26,9 @@ Sentry.init({
 
 const container = document.getElementById('root');
 const root = createRoot(container); // createRoot(container!) if you use TypeScript
-root.render(
-    <BrowserRouter>
-        <App/>
-    </BrowserRouter>
-);
+root.render(<BrowserRouter>
+    <App/>
+</BrowserRouter>);
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.debug))

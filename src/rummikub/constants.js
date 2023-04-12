@@ -14,6 +14,7 @@ const LOBBY_SERVER_PORT = IS_DEV ? '9119' : '443'
 const FRONTEND_PORT = IS_DEV ? '3000' : '443'
 const LOBBY_SERVER_PROTO = IS_DEV ? 'http' : 'https'
 const SENTRY_DSN = process.env.SENTRY_DSN
+const TILE_WIDTH = 2.156
 const COLOR = {
     red: 0,
     black: 1,
@@ -39,5 +40,6 @@ export {
     IS_DEV,
     SENTRY_DSN,
     COLORS,
-    COLOR
+    COLOR,
+    TILE_WIDTH,
 }

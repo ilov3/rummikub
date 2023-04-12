@@ -13,7 +13,7 @@ import JoinGamePage from "./rummikub/components/JoinGamePage";
 
 function getTestPlayerClient() {
     let PlayerClient = Client({
-        numPlayers: 2,
+        numPlayers: 1,
         game: Rummikub,
         board: RummikubBoard,
     })

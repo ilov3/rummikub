@@ -61,6 +61,9 @@ div.tile-drag-layer {
     height: 100%;
 }
 
+.tile-dragged {
+    margin-right: 3px;
+}
 
 div.tile {
     /*background-image: linear-gradient(to bottom right, var(--tile-gradient-light), var(--tile-gradient-dark));*/

@@ -21,8 +21,8 @@ test('test build tile simple', () => {
 });
 
 test('test build tile joker', () => {
-    expect(getTileValue(RedJoker)).toEqual(0);
-    expect(getTileValue(BlackJoker)).toEqual(0);
+    expect(getTileValue(RedJoker)).toEqual(14);
+    expect(getTileValue(BlackJoker)).toEqual(14);
 });
 
 test('test set tile value', () => {

@@ -1,5 +1,5 @@
 import React, {useCallback, useState} from 'react';
-import {useEffect} from "react";
+import {useRef, useEffect} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faSmileBeam} from "@fortawesome/free-solid-svg-icons";
 import {getTileValue, isJoker, getTileColor} from "../util";
@@ -7,14 +7,50 @@ import {useDrag} from 'react-dnd';
 import {getEmptyImage} from "react-dnd-html5-backend";
 import _ from "lodash";
 import useLongPress from "../useLongPress";
-import {COLORS, HAND_GRID_ID} from "../constants";
+import {COLORS, HAND_GRID_ID, TILE_WIDTH} from "../constants";
 
-function TilePreview({tile, isSelected, isDragging, isValid}) {
+
+function useDebouncedCallback(callback, delay) {
+    const callbackRef = useRef(callback);
+    const timeoutRef = useRef();
+
+    useEffect(() => {
+        callbackRef.current = callback;
+    }, [callback]);
+
+    return useCallback((...args) => {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = setTimeout(() => {
+            callbackRef.current(...args);
+        }, delay);
+    }, [delay]);
+}
+
+function getAbsolutePosition(relativePosition) {
+    return {
+        x: relativePosition.x * window.innerWidth,
+        y: relativePosition.y * window.innerHeight,
+    };
+}
+
+function TilePreview({tile, isSelected, isDragging, isValid, position, boardGriBoundingBox, index}) {
     if (!tile) return null
+    if (position && boardGriBoundingBox) {
+        let absPos = getAbsolutePosition(position);
+        const left = boardGriBoundingBox.left;
+        const top = boardGriBoundingBox.top;
+        const right = boardGriBoundingBox.right;
+        const bottom = boardGriBoundingBox.bottom;
+
+        const isXWithinBounds = absPos.x >= left && absPos.x <= right;
+        const isYWithinBounds = absPos.y >= top && absPos.y <= bottom;
+
+        if (!(isXWithinBounds && isYWithinBounds)) return null
+    }
     let val = isJoker(tile) ? <FontAwesomeIcon icon={faSmileBeam}/> : getTileValue(tile)
     return (
         <div
-            style={getTileStyle(isSelected, isDragging, isValid)}
+            style={getTileStyle(isSelected, isDragging, isValid, position, index)}
             className="tile tile-clickable border-dark">
             <div className={"tile-text tile-" + COLORS[getTileColor(tile)]}>{val}</div>
             <div className={"tile-subscript"}></div>
@@ -22,7 +58,12 @@ function TilePreview({tile, isSelected, isDragging, isValid}) {
     )
 }
 
-function getTileStyle(selected, isDragging, isValid) {
+function getTileWidth() {
+    const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+    return (TILE_WIDTH * viewportWidth) / 100;
+}
+
+function getTileStyle(selected, isDragging, isValid, position, index) {
     let backgroundColor = ''
     let border = ''
     let borderColor = ''
@@ -38,7 +79,7 @@ function getTileStyle(selected, isDragging, isValid) {
         borderColor = '#6416ff'
     }
 
-    return {
+    let result = {
         backgroundColor: backgroundColor,
         opacity: isDragging ? 0.5 : 1,
         fontSize: 25,
@@ -47,6 +88,14 @@ function getTileStyle(selected, isDragging, isValid) {
         border: border,
         borderColor: borderColor,
     }
+    if (position) {
+        let absPos = getAbsolutePosition(position)
+        result.position = 'absolute'
+        result.left = absPos.x + index * getTileWidth()
+        result.top = absPos.y
+    }
+
+    return result
 }
 
 export function Tile({
@@ -57,19 +106,40 @@ export function Tile({
                          handleTileSelection,
                          onTileDragEnd,
                          handleLongPress,
-                         onLongPressMouseUp
+                         onLongPressMouseUp,
+                         moves,
+                         playerID,
+                         selectedTiles
                      }) {
     const longPressTimeout = 250
     const [longPressTriggered, setLongPress] = useState(false)
+    const debouncedUpdateDragging = useDebouncedCallback((monitor) => {
+        const currentPosition = monitor.getSourceClientOffset();
+        console.log('Current Client Offset:', currentPosition);
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        moves.updateDragging(currentPosition, windowWidth, windowHeight);
+
+    }, 150); // Adjust the delay as needed
     const [{isDragging}, drag, preview] = useDrag(function () {
         return {
             type: 'tile',
-            item: {id: tile},
+            item: function (monitor) {
+                const initialClientOffset = monitor.getInitialClientOffset();
+                const initialSourceOffset = monitor.getInitialSourceClientOffset();
+                console.log('Initial Client Offset:', initialClientOffset);
+                console.log('Initial Source Client Offset:', initialSourceOffset);
+                const containerWidth = window.innerWidth;
+                const containerHeight = window.innerHeight;
+                moves.startDragging(tile, initialSourceOffset, playerID, selectedTiles, containerWidth, containerHeight);
+                return {id: tile}
+            },
             end: function (draggedItem, monitor) {
                 let didDrop = monitor.didDrop()
                 if (didDrop) {
                     onTileDragEnd()
                 }
+                moves.endDragging()
             },
             canDrag: () => {
                 return canDnD
@@ -77,8 +147,11 @@ export function Tile({
             collect: monitor => ({
                 isDragging: monitor.isDragging(),
             }),
+            isDragging: (monitor) => {
+                debouncedUpdateDragging(monitor)
+            },
         }
-    }, [canDnD])
+    }, [canDnD, selectedTiles])
     useEffect(() => {
         preview(getEmptyImage(), {captureDraggingState: true});
     }, [preview]);
