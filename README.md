@@ -1,4 +1,4 @@
-# [Rummikub](https://rummi.uk) online multiplayer game
+# Rummikub online multiplayer game
 
 Implementation of [Rummikub](https://en.wikipedia.org/wiki/Rummikub) game variation. 
 Was built using React + bunch of libraries "just for fun". First attempt on this technology, 
