@@ -15,7 +15,7 @@ Some differences from original rules:
 Game creation
 ![img.png](screenshots/img.png)
 
-Game in process
+Game in progress
 ![img_1.png](screenshots/img_1.png)
 
 ### Known limitations:
