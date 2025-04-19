@@ -8,15 +8,23 @@ Some differences from original rules:
 1. Tile with value "1" could be placed after "13" in a run (but not "2" after "1" in this case)
 2. After first move ("initial meld") is done, player should pick two tile instead of one 
    (in case if he forced/wants to skip his turn)
-   
+
+
+### Screenshots
+
+Game creation
+![img.png](screenshots/img.png)
+
+Game in process
+![img_1.png](screenshots/img_1.png)
 
 ### Known limitations:
 - Turn timeout handled on client-side, so there is a way to bypass it
 
 ### Local development
-Make sure node/npm installed
+Make sure node/npm installed, currently game requires node v20
 
-1. Create .env file
+1. Create .env file and change env var values if needed
 ```shell
 cp .env.example .env
 ```

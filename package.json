@@ -26,10 +26,10 @@
     "web-vitals": "^3.3.1"
   },
   "scripts": {
-    "start": "react-scripts --openssl-legacy-provider start",
+    "start": "source .env && react-scripts --openssl-legacy-provider start",
     "build": "react-scripts build",
     "test": "jest",
-    "serve": "NODE_ENV=development node -r esm src/devServer.js",
+    "serve": "node --env-file .env -r esm src/devServer.js",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

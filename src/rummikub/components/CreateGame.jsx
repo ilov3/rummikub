@@ -3,7 +3,7 @@ import Button from "react-bootstrap/Button";
 import GameLobbyClient from "../lobbyClient";
 import {useState} from "react";
 import {useNavigate} from "react-router-dom"
-import {FRONTEND_PORT, IS_DEV, LOBBY_SERVER_HOST, LOBBY_SERVER_PROTO} from "../constants";
+import {FRONTEND_ADDR, IS_DEV, LOBBY_SERVER_PROTO} from "../constants";
 import {copyToClipboard} from "../util";
 
 const CreateGameForm = function () {
@@ -18,8 +18,7 @@ const CreateGameForm = function () {
         event.preventDefault();
         client.createGame(numPlayers, timePerTurn).then(
             (id) => {
-                let hostAddr = `${LOBBY_SERVER_HOST}:${FRONTEND_PORT}`
-                let matchLink = `${LOBBY_SERVER_PROTO}://${hostAddr}/join-match/${id}`
+                let matchLink = `${LOBBY_SERVER_PROTO}://${FRONTEND_ADDR}/join-match/${id}`
                 copyToClipboard(matchLink)
                 console.debug(id)
                 setMatchID(id)

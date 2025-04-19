@@ -3,7 +3,7 @@ import {Rummikub} from "../Game";
 import RummikubBoard from "./Board";
 import {useParams, useLocation, useNavigate} from "react-router-dom"
 import {SocketIO} from "boardgame.io/multiplayer";
-import {LOBBY_SERVER_HOST, LOBBY_SERVER_PORT, LOBBY_SERVER_PROTO} from "../constants";
+import {IO_SOCKET_ADDR} from "../constants";
 import React, {useEffect, useState} from "react";
 
 const GameMatch = function (props) {
@@ -27,7 +27,7 @@ const GameMatch = function (props) {
         game: Rummikub,
         board: RummikubBoard,
         multiplayer: SocketIO(
-            {server: `${LOBBY_SERVER_PROTO}://${LOBBY_SERVER_HOST}:${LOBBY_SERVER_PORT}`}),
+            {server: IO_SOCKET_ADDR}),
         playerCreds: locationState.creds,
     })
     return <PlayerClient credentials={locationState.creds}
