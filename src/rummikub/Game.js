@@ -16,41 +16,10 @@ import {
     HAND_ROWS,
     BOARD_COLS,
     BOARD_ROWS,
-    TILES_TO_DRAW, GAME_NAME
+    TILES_TO_DRAW, GAME_NAME, IS_DEV
 } from "./constants";
-import _ from "lodash";
-import {isBoardValid} from "./moveValidation";
 import {orderByColorVal, orderByValColor} from "./orderTiles";
 
-function startDragging(G, ctx, tileID, initialPosition, playerID, selectedTiles, containerWidth, containerHeight) {
-    G.draggingTile = {
-        tileID: tileID,
-        selectedTiles: selectedTiles,
-        initialPosition: {
-            x: initialPosition.x / containerWidth,
-            y: initialPosition.y / containerHeight,
-        },
-        currentPosition: {
-            x: initialPosition.x / containerWidth,
-            y: initialPosition.y / containerHeight,
-        },
-        playerID: playerID,
-    };
-};
-
-
-function updateDragging(G, ctx, currentPosition, windowWidth, windowHeight) {
-    if (G.draggingTile) {
-        G.draggingTile.currentPosition = {
-            x: currentPosition.x / windowWidth,
-            y: currentPosition.y / windowHeight,
-        }
-    };
-};
-
-function endDragging(G, ctx) {
-    G.draggingTile = null;
-};
 
 const Rummikub = {
     name: GAME_NAME,
@@ -61,25 +30,47 @@ const Rummikub = {
         let hands = []
         let firstMoveDone = []
         let tilePositions = {}
-        for (let p = 0; p < ctx.numPlayers; p++) {
-            let tilesToDraw = TILES_TO_DRAW
-            let hand = Array.from(Array(HAND_ROWS), _ => Array(HAND_COLS).fill(null));
-            for (let row = 0; row < HAND_ROWS; row++) {
-                for (let col = 0; col < HAND_COLS; col++) {
-                    if (tilesToDraw > 0) {
-                        let tile = pool.pop()
-                        let tilePos = {id: tile, col: col, row: row, gridId: HAND_GRID_ID, playerID: p.toString()}
-                        hand[row][col] = tile
-                        tilePositions[tile] = tilePos
-                        tilesToDraw--
+        if (IS_DEV) {
+            let pool = getTiles()
+            for (let p = 0; p < ctx.numPlayers; p++) {
+                let tilesToDraw = 3
+                let hand = Array.from(Array(HAND_ROWS), _ => Array(HAND_COLS).fill(null));
+                for (let row = 0; row < HAND_ROWS; row++) {
+                    for (let col = 0; col < HAND_COLS; col++) {
+                        if (tilesToDraw > 0) {
+                            let tile = pool.shift()
+                            let tilePos = {id: tile, col: col, row: row, gridId: HAND_GRID_ID, playerID: p.toString()}
+                            hand[row][col] = tile
+                            tilePositions[tile] = tilePos
+                            tilesToDraw--
+                        }
                     }
                 }
+                hands.push(hand)
+                firstMoveDone.push(true)
             }
-            hands.push(hand)
-            firstMoveDone.push(false)
+
+        } else {
+            for (let p = 0; p < ctx.numPlayers; p++) {
+                let tilesToDraw = TILES_TO_DRAW
+                let hand = Array.from(Array(HAND_ROWS), _ => Array(HAND_COLS).fill(null));
+                for (let row = 0; row < HAND_ROWS; row++) {
+                    for (let col = 0; col < HAND_COLS; col++) {
+                        if (tilesToDraw > 0) {
+                            let tile = pool.pop()
+                            let tilePos = {id: tile, col: col, row: row, gridId: HAND_GRID_ID, playerID: p.toString()}
+                            hand[row][col] = tile
+                            tilePositions[tile] = tilePos
+                            tilesToDraw--
+                        }
+                    }
+                }
+                hands.push(hand)
+                firstMoveDone.push(false)
+            }
         }
         return {
-            timePerTurn: setupData ? setupData.timePerTurn : 10,
+            timePerTurn: (setupData ? setupData.timePerTurn : 10) * 1000,
             timerExpireAt: null,
             tilesPool: pool,
             hands: hands,
@@ -102,9 +93,6 @@ const Rummikub = {
                 moveTiles,
                 undo,
                 redo,
-                startDragging,
-                updateDragging,
-                endDragging
             },
             next: 'play'
         },
@@ -120,9 +108,6 @@ const Rummikub = {
         endTurn,
         undo,
         redo,
-        startDragging,
-        updateDragging,
-        endDragging,
     },
     turn: {
         activePlayers: {all: Stage.NULL},

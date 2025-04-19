@@ -10,11 +10,9 @@ import Sidebar from "./Sidebar";
 import {extractSeqs, isBoardHasNewTiles, isBoardValid} from "../moveValidation";
 import {getSecTs, isSequenceValid} from "../util";
 import TileDragLayer from "./TileDragLayer";
-
-import {handleTileSelection, handleLongPress, clearTurnTimeout} from "../boardUtil";
+import GameOverModal from "./GameOverModal";
+import {handleTileSelection, handleLongPress} from "../boardUtil";
 import _ from "lodash";
-import tile, {TilePreview} from "./Tile";
-
 
 const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, events}) {
     console.log('RENDER BOARD')
@@ -77,7 +75,6 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, ev
 
     function drawTile(e) {
         moves.drawTile(!isBoardValid(G.board))
-        // setSecondsLeft(G.timePerTurn)
     }
 
     function onOrderByValColor(e) {
@@ -103,7 +100,7 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, ev
     }
 
     function onTimeout() {
-        console.debug('TURN TIME OUT!', new Date())
+        console.log('TURN TIME OUT!', new Date())
         endTurn()
     }
 
@@ -121,30 +118,30 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, ev
 
 
     const endBut = (<button disabled={!(ctx.currentPlayer === playerID) || ctx.gameover}
-                            className={'btn btn-primary'}
+                            className={'rummikub-button'}
                             onClick={() => {
                                 endTurn()
                             }}>End
     </button>)
 
-    const drawBut = (<button disabled={!(ctx.currentPlayer === playerID && G.tilesPool.length) || ctx.gameover || ctx.phase === 'playersJoin'}
-                             title={'Take a tile and skip the turn'}
-                             className={'btn btn-primary'}
-                             onClick={() => {
-                                 drawTile()
-                             }}>Draw
+    const drawBut = (<button
+        disabled={!(ctx.currentPlayer === playerID && G.tilesPool.length) || ctx.gameover || ctx.phase === 'playersJoin'}
+        title={'Take a tile and skip the turn'}
+        className={'rummikub-button'}
+        onClick={() => {
+            drawTile()
+        }}>Draw
     </button>)
-
-    const undoBut = (<button disabled={!(ctx.currentPlayer === playerID && G.gameStateStack.length) || ctx.gameover}
-                             className={'text-white btn btn-warning'}
+    const undoBut = (<button disabled={!G.gameStateStack.length || ctx.gameover}
+                             className={'rummikub-button'}
                              title={'Undo last action'}
                              onClick={() => {
                                  moves.undo()
                              }}>Undo
     </button>)
 
-    const redoBut = (<button disabled={!(ctx.currentPlayer === playerID && G.redoMoveStack.length) || ctx.gameover}
-                             className={'text-white btn btn-warning'}
+    const redoBut = (<button disabled={!G.redoMoveStack.length || ctx.gameover}
+                             className={'rummikub-button'}
                              title={'Redo last action'}
                              onClick={() => {
                                  moves.redo()
@@ -211,58 +208,43 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, ev
     } else {
         drawOrEnd = endBut
     }
-    const renderMovingTile = () => {
-        if (G.draggingTile && G.draggingTile.playerID === ctx.currentPlayer && G.draggingTile.playerID !== playerID) {
-            if (G.draggingTile.selectedTiles.includes(G.draggingTile.tileID)) {
-                return G.draggingTile.selectedTiles.map(function (tileId, index) {
-
-                    return <TilePreview key={tileId}
-                                        tile={tileId}
-                                        isSelected={false}
-                                        isDragging={true}
-                                        position={G.draggingTile.currentPosition}
-                                        boardGriBoundingBox={boardGriBoundingBox}
-                                        index={index}/>
-                })
-            }
-            return <TilePreview tile={G.draggingTile.tileID}
-                                isSelected={false}
-                                isDragging={true}
-                                position={G.draggingTile.currentPosition}
-                                boardGriBoundingBox={boardGriBoundingBox}
-                                index={0}/>;
-        }
-        return null;
-    };
-
 
     return <DndProvider backend={HTML5Backend}>
+
         <div className={'container-float'}>
+            {ctx.gameover &&
+                <GameOverModal
+                    winner={matchData[parseInt(ctx.gameover.winner)].name}
+                    points={ctx.gameover.points}
+                    matchId={matchID}
+                    playerID={playerID}
+                    matchData={matchData}
+                />}
+
             {sidebar}
             <div className="board" onClick={onBoardClick}>
                 {boardGrid}
                 <div className={'hand-buttons'}>
                     {handGrid}
-                    <div className="buttons">
+                    <div className="controls-wrapper">
                         <button disabled={ctx.gameover}
                                 title={'Order by runs'}
-                                className={'btn btn-primary'} onClick={() => {
+                                className={'rummikub-button'} onClick={() => {
                             onOrderByColorClicked()
                         }}>789
                         </button>
                         <button disabled={ctx.gameover}
                                 title={'Order by sets'}
-                                className={'btn btn-primary'} onClick={() => {
+                                className={'rummikub-button'} onClick={() => {
                             onOrderByValColor()
                         }}>777
                         </button>
                         {drawOrEnd}
-                        {undoBut}
-                        {redoBut}
+                        {(ctx.currentPlayer === playerID) ? undoBut : ''}
+                        {(ctx.currentPlayer === playerID) ? redoBut : ''}
                     </div>
                 </div>
             </div>
-            {renderMovingTile()}
             <TileDragLayer
                 G={G}
                 playerID={playerID}

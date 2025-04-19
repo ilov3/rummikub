@@ -1,0 +1,51 @@
+.gameover-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.gameover-modal {
+  background-color: #fffaf0;
+  border-radius: 20px;
+  padding: 2rem 3rem;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(0,0,0,0.2);
+  border: 2px solid #d4af37;
+  max-width: 600px;
+  width: 90%;
+}
+
+.gameover-title {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: #4a4a4a;
+}
+
+.gameover-points {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  color: #333;
+}
+
+.gameover-button {
+  background-color: #f9c74f;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #fff;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+
+.gameover-button:hover {
+  background-color: #f9844a;
+}

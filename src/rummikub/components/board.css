@@ -15,26 +15,31 @@ body {
     z-index: 1; /* Stay on top */
     top: 0; /* Stay at the top */
     left: 0;
-    background-color: #393939; /* Black */
+    /*background-color: #393939; !* Black *!*/
     overflow-x: hidden; /* Disable horizontal scroll */
     padding-top: 20px;
     padding-left: 2px;
-    color: azure;
+    color: #5d7239;
 }
 
-div.buttons {
-    margin: 0 auto;
-    margin-top: 1vh;
-    width: 23vw;
+.controls-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px; /* adjust spacing as needed */
 }
 
-.buttons button {
-    font-size: 1.1vw;
-    display: inline-block;
-    width: 4.2vw;
-    margin-right: 0.2vw;
-    margin-left: 0.2vw;
+.controls-wrapper button {
     font-family: cheva;
+}
+
+.rummikub-button:disabled {
+  background-color: #ddd !important;
+  color: #888 !important;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+  opacity: 0.6;
 }
 
 div.grid-item {
@@ -116,4 +121,115 @@ svg.fa-smile-beam {
 
 .tile-orange {
     color: #d58300;
+}
+
+.player-list {
+    display: flex;
+    flex-direction: column; /* makes it vertical */
+    gap: 3rem;
+    padding: 1rem;
+    align-items: flex-start; /* optional: aligns to the left */
+}
+
+.avatar {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    /*background: linear-gradient(135deg, #8fc56a, #5d7e30);*/
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    font-size: 0.9rem;
+    text-align: center;
+    z-index: 1;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.username {
+    position: absolute; /* Position the username absolutely within the circle */
+    top: 50%; /* Position from top */
+    left: 50%; /* Position from left */
+    transform: translate(-50%, -50%); /* Centering the text */
+    z-index: 2; /* Ensure the username is on top */
+    font-size: 1rem; /* Adjust size if needed */
+}
+
+.tile-count {
+    position: absolute;
+    bottom: -6px;
+    right: -6px;
+    background: red;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.avatar.active {
+    box-shadow: 0 0 0 2px white,
+    0 0 12px 4px rgba(255, 255, 0, 0.8),
+    0 0 30px 10px rgba(255, 255, 0, 0.4);
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.timer-ring {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    transform: rotate(-90deg); /* start from top */
+    z-index: 0;
+}
+
+.timer-circle {
+    transition: stroke-dashoffset 1s ease;
+}
+
+.rummikub-button {
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: bold;
+    font-size: 18px;
+    padding: 10px 20px;
+    margin: 0 10px;
+    border: none;
+    border-radius: 12px;
+    background-color: #fdf4dc;
+    box-shadow: 0 4px 0 #d6c38d, 0 2px 6px rgba(0, 0, 0, 0.3);
+    color: #333;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.rummikub-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #d6c38d, 0 3px 8px rgba(0, 0, 0, 0.4);
+}
+
+.rummikub-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 0 #b8a76c, 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Color accents */
+.rummikub-button.end {
+    background-color: #c1e1c1;
+    color: #006400;
+}
+
+.rummikub-button.undo {
+    background-color: #ffe6b3;
+    color: #b36b00;
+}
+
+.rummikub-button.redo {
+    background-color: #d6e0f0;
+    color: #004080;
 }

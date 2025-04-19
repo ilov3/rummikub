@@ -26,8 +26,11 @@ class GameLobbyClient {
     }
 
     async listSeats(matchID) {
-        const result = await this.client.getMatch(GAME_NAME, matchID)
-        return result
+        return await this.client.getMatch(GAME_NAME, matchID)
+    }
+
+    async playAgain(matchId, playerMetaData) {
+        return await this.client.playAgain(GAME_NAME, matchId, playerMetaData)
     }
 }
 

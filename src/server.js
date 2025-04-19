@@ -5,8 +5,8 @@ import {Rummikub} from "./rummikub/Game";
 
 const server = Server({
     games: [Rummikub],
-    apiOrigins: [Origins.LOCALHOST, 'https://rummi.uk'],
-    origins: [Origins.LOCALHOST, 'https://rummi.uk']
+    apiOrigins: [Origins.LOCALHOST, 'http://167.86.73.205:9999'],
+    origins: [Origins.LOCALHOST, 'http://167.86.73.205:9999']
 });
 const PORT = process.env.PORT || 9119;
 

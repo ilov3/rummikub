@@ -6,7 +6,7 @@ import {getTileValue, isJoker, getTileColor} from "../util";
 import {useDrag} from 'react-dnd';
 import {getEmptyImage} from "react-dnd-html5-backend";
 import _ from "lodash";
-import useLongPress from "../useLongPress";
+import useLongPress from "../hooks/useLongPress";
 import {COLORS, HAND_GRID_ID, TILE_WIDTH} from "../constants";
 
 
@@ -113,25 +113,10 @@ export function Tile({
                      }) {
     const longPressTimeout = 250
     const [longPressTriggered, setLongPress] = useState(false)
-    const debouncedUpdateDragging = useDebouncedCallback((monitor) => {
-        const currentPosition = monitor.getSourceClientOffset();
-        console.log('Current Client Offset:', currentPosition);
-        const windowWidth = window.innerWidth;
-        const windowHeight = window.innerHeight;
-        moves.updateDragging(currentPosition, windowWidth, windowHeight);
-
-    }, 150); // Adjust the delay as needed
     const [{isDragging}, drag, preview] = useDrag(function () {
         return {
             type: 'tile',
             item: function (monitor) {
-                const initialClientOffset = monitor.getInitialClientOffset();
-                const initialSourceOffset = monitor.getInitialSourceClientOffset();
-                console.log('Initial Client Offset:', initialClientOffset);
-                console.log('Initial Source Client Offset:', initialSourceOffset);
-                const containerWidth = window.innerWidth;
-                const containerHeight = window.innerHeight;
-                moves.startDragging(tile, initialSourceOffset, playerID, selectedTiles, containerWidth, containerHeight);
                 return {id: tile}
             },
             end: function (draggedItem, monitor) {
@@ -139,7 +124,6 @@ export function Tile({
                 if (didDrop) {
                     onTileDragEnd()
                 }
-                moves.endDragging()
             },
             canDrag: () => {
                 return canDnD
@@ -147,9 +131,6 @@ export function Tile({
             collect: monitor => ({
                 isDragging: monitor.isDragging(),
             }),
-            isDragging: (monitor) => {
-                debouncedUpdateDragging(monitor)
-            },
         }
     }, [canDnD, selectedTiles])
     useEffect(() => {
