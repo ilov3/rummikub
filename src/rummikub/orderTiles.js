@@ -1,5 +1,4 @@
 import _ from "lodash";
-import {isCalledByActivePlayer} from "./moveValidation";
 import {getTileColor, getTileValue, groupValidSequences, getGameState, deactivateTileVariant} from "./util";
 import {HAND_GRID_ID} from "./constants";
 
@@ -78,23 +77,23 @@ function orderByFunc(tiles, sortingFunc) {
     return flattened
 }
 
-function orderBy(G, ctx, sortingFunc) {
-    if (isCalledByActivePlayer(ctx)) {
+function orderBy(G, ctx, sortingFunc, playerID) {
+    if (playerID == ctx.currentPlayer) {
         G.gameStateStack.push(getGameState(G))
     }
-    let tiles = G.hands[ctx.playerID]
+    let tiles = G.hands[playerID]
     let sorted = orderByFunc(tiles, sortingFunc)
 
-    pushTilesToGrid(groupValidSequences(sorted), G.hands[ctx.playerID], G,
-        {gridId: HAND_GRID_ID, playerID: ctx.playerID}, ctx, true)
+    pushTilesToGrid(groupValidSequences(sorted), G.hands[playerID], G,
+        {gridId: HAND_GRID_ID, playerID: playerID}, ctx, true)
 }
 
-function orderByColorVal(G, ctx) {
-    orderBy(G, ctx, compareTilesByColorVal);
+function orderByColorVal({G, ctx, playerID}) {
+    orderBy(G, ctx, compareTilesByColorVal, playerID);
 }
 
-function orderByValColor(G, ctx) {
-    orderBy(G, ctx, compareTilesByValColor);
+function orderByValColor({G, ctx, playerID}) {
+    orderBy(G, ctx, compareTilesByValColor, playerID);
 }
 
 export {

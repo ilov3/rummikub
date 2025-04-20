@@ -1,7 +1,6 @@
 import {BOARD_GRID_ID, HAND_GRID_ID} from "./constants";
 import _ from "lodash";
 import {
-    isCalledByActivePlayer,
     isBoardHasNewTiles,
     isFirstMoveValid,
     isFirstMove,
@@ -33,8 +32,8 @@ function getGridByIdPlayer(G, gridId, playerId) {
 }
 
 
-function drawTile(G, ctx, doRollback = true) {
-    if (!isCalledByActivePlayer(ctx)) return INVALID_MOVE
+function drawTile({G, ctx, playerID, events}, doRollback = true) {
+    if (playerID != ctx.currentPlayer) return INVALID_MOVE
     if (doRollback) {
         rollbackChanges(G, ctx.currentPlayer, ctx)
     }
@@ -59,34 +58,33 @@ function drawTile(G, ctx, doRollback = true) {
         gridId: HAND_GRID_ID,
         playerID: ctx.currentPlayer
     }, ctx)
-    ctx.events.endTurn()
+    events.endTurn()
 }
 
 
-function isOverlap(G, ctx, col, row, destGridId, tileId) {
-    let currPlayer = ctx.playerID
+function isOverlap(G, ctx, col, row, destGridId, playerID) {
     if (destGridId === BOARD_GRID_ID && G.board[row][col]
-        || destGridId === HAND_GRID_ID && G.hands[currPlayer][row][col]) {
+        || destGridId === HAND_GRID_ID && G.hands[parseInt(playerID)][row][col]) {
         console.debug('TILE OVERLAP')
         return true
     }
     return false
 }
 
-function moveTiles(G, ctx, col, row, destGridId, tileIdObj, selectedTiles) {
-    if (isCalledByActivePlayer(ctx)) {
+function moveTiles({G, ctx, playerID}, col, row, destGridId, tileIdObj, selectedTiles) {
+    if (ctx.currentPlayer == playerID) {
         G.gameStateStack.push(getGameState(G))
     }
     console.debug('MOVE TILE:', col, row, destGridId, tileIdObj, selectedTiles)
     let tileId = tileIdObj.id
 
     function insertTile(tileId, destGridId, destRow, destCol) {
-        if (isOverlap(G, ctx, destCol, destRow, destGridId, tileId)) {
+        if (isOverlap(G, ctx, destCol, destRow, destGridId, playerID)) {
             console.debug('overlap detected!')
             return INVALID_MOVE;
         }
         let currPos = G.tilePositions[tileId]
-        let currPlayer = ctx.playerID
+        let currPlayer = playerID
         let fromHandToBoard = currPos.gridId === HAND_GRID_ID && destGridId === BOARD_GRID_ID
         let fromHandToHand = currPos.gridId === HAND_GRID_ID && destGridId === HAND_GRID_ID
         let fromBoardToBoard = currPos.gridId === BOARD_GRID_ID && destGridId === BOARD_GRID_ID
@@ -98,7 +96,7 @@ function moveTiles(G, ctx, col, row, destGridId, tileIdObj, selectedTiles) {
         let dest = null
 
         if (fromHandToBoard) {
-            if (!isCalledByActivePlayer(ctx) || ctx.phase === 'playersJoin') return INVALID_MOVE
+            if (playerID != ctx.currentPlayer || ctx.phase === 'playersJoin') return INVALID_MOVE
             source = G.hands[currPlayer]
             dest = G.board
             flags = {tmp: true, playerID: null}
@@ -108,12 +106,12 @@ function moveTiles(G, ctx, col, row, destGridId, tileIdObj, selectedTiles) {
             dest = G.hands[currPlayer]
             flags = {tmp: false, playerID: currPos.playerID}
         } else if (fromBoardToBoard) {
-            if (!isCalledByActivePlayer(ctx)) return INVALID_MOVE
+            if (playerID != ctx.currentPlayer) return INVALID_MOVE
             source = G.board
             dest = G.board
             flags = {tmp: currPos.tmp, playerID: currPos.playerID}
         } else if (fromBoardToHand) {
-            if (!isCalledByActivePlayer(ctx)) return INVALID_MOVE
+            if (playerID != ctx.currentPlayer) return INVALID_MOVE
             source = G.board
             dest = G.hands[currPlayer]
             flags = {tmp: false, playerID: currPlayer}
@@ -136,18 +134,18 @@ function moveTiles(G, ctx, col, row, destGridId, tileIdObj, selectedTiles) {
     }
 }
 
-function endTurn(G, ctx) {
-    if (!isCalledByActivePlayer(ctx)) {
+function endTurn({G, ctx, playerID, events}) {
+    if (ctx.currentPlayer != playerID) {
         console.log('>>>>> invalid move endTurn')
         return INVALID_MOVE
     }
     console.debug('END TURN CALLED', ctx.currentPlayer)
     if (isBoardHasNewTiles(G)) {
         console.debug('BOARD IS DIRTY')
-        validatePlayerMove(G, ctx)
+        validatePlayerMove(G, ctx, playerID, events)
     } else {
         console.debug('BOARD IS CLEAN')
-        drawTile(G, ctx, !isBoardValid(G.board))
+        drawTile({G, ctx, playerID, events}, !isBoardValid(G.board))
     }
 }
 
@@ -170,9 +168,9 @@ function rollbackChanges(G, player, ctx) {
     freezeTmpTiles(G)
 }
 
-function undo(G, ctx) {
-    if (!isCalledByActivePlayer(ctx)) return INVALID_MOVE
-    let currPlayer = ctx.playerID
+function undo({G, ctx, playerID}) {
+    if (ctx.currentPlayer != playerID) return INVALID_MOVE
+    let currPlayer = playerID
     let lastGameState = G.gameStateStack.pop()
     if (!lastGameState) {
         console.log('No moves to undo')
@@ -196,9 +194,9 @@ function undo(G, ctx) {
     console.log('undo done')
 }
 
-function redo(G, ctx) {
-    if (!isCalledByActivePlayer(ctx)) return INVALID_MOVE
-    let currPlayer = ctx.playerID
+function redo({G, ctx, playerID}) {
+    if (ctx.currentPlayer != playerID) return INVALID_MOVE
+    let currPlayer = playerID
     let nextGameState = G.redoMoveStack.pop()
     if (!nextGameState) {
         console.log('No moves to redo')
@@ -220,7 +218,7 @@ function redo(G, ctx) {
     console.log('redo done')
 }
 
-function validatePlayerMove(G, ctx) {
+function validatePlayerMove(G, ctx, playerID, events) {
     let player = ctx.currentPlayer
     console.debug('VALIDATE PLAYER MOVE', player)
     let moveValid = false
@@ -235,20 +233,20 @@ function validatePlayerMove(G, ctx) {
         console.debug('MOVE VALID')
         G.firstMoveDone[player] = true
         freezeTmpTiles(G)
-        ctx.events.endTurn()
+        events.endTurn()
     } else {
         console.debug('MOVE INVALID')
-        drawTile(G, ctx)
+        drawTile({G, ctx, playerID, events})
     }
 }
 
-function onPlayPhaseBegin(G, ctx) {
+function onPlayPhaseBegin({G, ctx}) {
     console.log('PLAY PHASE BEGIN', new Date())
     G.timerExpireAt = getSecTs() + G.timePerTurn
     return G
 }
 
-function onTurnBegin(G, ctx) {
+function onTurnBegin({G, ctx}) {
     console.log('ON TURN BEGIN', new Date())
     G.timerExpireAt = getSecTs() + G.timePerTurn
     G.gameStateStack = []
@@ -261,13 +259,13 @@ function onTurnBegin(G, ctx) {
     return G
 }
 
-function onTurnEnd(G, ctx) {
+function onTurnEnd({G, ctx, events}) {
     console.log('ON TURN END', new Date())
     G.timerExpireAt = null
-    checkGameOver(G, ctx)
+    checkGameOver(G, ctx, events)
 }
 
-function checkGameOver(G, ctx) {
+function checkGameOver(G, ctx, events) {
     if (G.lastCircle.length >= ctx.numPlayers) {
         let winner = findWinner(G.hands)
         let points = countPoints(G.hands, winner)
@@ -278,7 +276,7 @@ function checkGameOver(G, ctx) {
     let tilesLeft = _.some(flattened, Boolean)
     if (!tilesLeft && isBoardValid(G.board)) {
         let points = countPoints(G.hands, ctx.currentPlayer)
-        ctx.events.endGame({winner: ctx.currentPlayer, points: points})
+        events.endGame({winner: ctx.currentPlayer, points: points})
     }
     return G
 }

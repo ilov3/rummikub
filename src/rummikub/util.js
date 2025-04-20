@@ -311,20 +311,25 @@ function isSequenceValid(tiles) {
     return countSeqScore(tiles) > 0
 }
 
-function countPoints(hands, excludeIndex) {
-    let points = 0
+function countPoints(hands, winnerIndex) {
+    let points = {}
+    let winnerPoints = 0
     for (let i = 0; i < hands.length; i++) {
-        if (i !== excludeIndex) {
+        let playerPoints = 0
+        if (i !== winnerIndex) {
             let hand = hands[i]
             let flattened = _.flatten(hand)
             for (let tile of flattened) {
                 if (tile) {
                     let tilePoint = isJoker(tile) ? 30 : getTileValue(tile)
-                    points += tilePoint
+                    playerPoints += tilePoint
                 }
             }
+            points[i] = playerPoints * -1
+            winnerPoints += playerPoints
         }
     }
+    points[winnerIndex] = winnerPoints
     return points
 }
 

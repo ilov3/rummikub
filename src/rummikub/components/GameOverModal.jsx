@@ -5,7 +5,7 @@ import {copyToClipboard} from "../util";
 import GameLobbyClient from "../lobbyClient";
 import {useLocation, useNavigate} from "react-router-dom";
 
-const GameOverModal = ({winner, points, matchId, playerID, matchData}) => {
+const GameOverModal = ({gameover, matchId, playerID, matchData}) => {
     const client = new GameLobbyClient()
     const navigate = useNavigate()
     const location = useLocation()
@@ -39,13 +39,24 @@ const GameOverModal = ({winner, points, matchId, playerID, matchData}) => {
     return (
         <div className="gameover-backdrop">
             <div className="gameover-modal">
-                <h2 className="gameover-title">🎉 Congratulations {winner}! 🎉</h2>
-                <p className="gameover-points">Total Points: <strong>{points}</strong></p>
+                <h2 className="gameover-title">🎉 Congratulations {matchData[parseInt(gameover.winner)].name}! 🎉</h2>
+                <p className="gameover-points">Total Points: <strong>{gameover.points[parseInt(gameover.winner)]}</strong></p>
+                <ul className="gameover-score-list">
+                    {Object.entries(gameover.points)
+                        .sort((a, b) => b[0] - a[0])
+                        .map((data) => (
+                            <li key={data[0]} className="gameover-score-item">
+                                {matchData[parseInt(data[0])].name} <strong>{data[1]} pts</strong>
+                            </li>
+                        ))}
+                </ul>
+
                 <button className="gameover-button" onClick={onPlayAgain}>
                     🔁 Play Again
                 </button>
             </div>
         </div>
+
     );
 };
 

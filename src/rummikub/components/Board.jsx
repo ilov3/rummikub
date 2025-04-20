@@ -214,8 +214,7 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, ev
         <div className={'container-float'}>
             {ctx.gameover &&
                 <GameOverModal
-                    winner={matchData[parseInt(ctx.gameover.winner)].name}
-                    points={ctx.gameover.points}
+                    gameover={ctx.gameover}
                     matchId={matchID}
                     playerID={playerID}
                     matchData={matchData}

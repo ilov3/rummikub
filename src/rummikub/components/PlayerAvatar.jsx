@@ -1,17 +1,9 @@
 import React, {useEffect, useState} from "react";
+import {stringToColor} from "../util";
 
 const RADIUS = 45;
 const STROKE = 6;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
-
-function stringToColor(str) {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-        hash = str.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const hue = Math.abs(hash) % 360;
-    return `hsl(${hue}, 70%, 50%)`;
-}
 
 const PlayerAvatarWithTimer = ({name, tiles, isActive, timeLeft, totalTime, showTurnTimer}) => {
     const [dashOffset, setDashOffset] = useState(CIRCUMFERENCE);

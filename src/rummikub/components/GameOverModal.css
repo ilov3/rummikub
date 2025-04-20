@@ -49,3 +49,20 @@
 .gameover-button:hover {
   background-color: #f9844a;
 }
+
+.gameover-score-list {
+  list-style: none;
+  padding: 0;
+  margin: 1em 0;
+}
+
+.gameover-score-item {
+  margin: 0.25em 0;
+  font-size: 1.1em;
+}
+
+.gameover-rank {
+  font-weight: bold;
+  margin-right: 0.5em;
+}
+

@@ -2,9 +2,6 @@ import _ from "lodash";
 import {arraysEqual, countSeqScore, isSequenceValid} from "./util.js";
 import {BOARD_COLS, BOARD_ROWS, FIRST_MOVE_SCORE_LIMIT} from "./constants";
 
-function isCalledByActivePlayer(ctx) {
-    return ctx.playerID == ctx.currentPlayer
-}
 
 function freezeTmpTiles(G) {
     for (let tileId of Object.keys(G.tilePositions)) {
@@ -132,7 +129,6 @@ export {
     isFirstMoveValid,
     isFirstMove,
     isBoardHasNewTiles,
-    isCalledByActivePlayer,
     isBoardValid,
     extractSeqs,
 }

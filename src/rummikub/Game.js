@@ -1,31 +1,24 @@
 import {Stage} from 'boardgame.io/core';
-import {countPoints, getTiles} from './util'
+import {getTiles} from './util'
+import {drawTile, endTurn, moveTiles, onPlayPhaseBegin, onTurnBegin, onTurnEnd, redo, undo} from "./moves";
 import {
-    onTurnBegin,
-    onPlayPhaseBegin,
-    drawTile,
-    moveTiles,
-    endTurn,
-    undo,
-    redo,
-    onTurnEnd
-} from "./moves";
-import {
-    HAND_GRID_ID,
-    HAND_COLS,
-    HAND_ROWS,
     BOARD_COLS,
     BOARD_ROWS,
-    TILES_TO_DRAW, GAME_NAME, IS_DEV
+    GAME_NAME,
+    HAND_COLS,
+    HAND_GRID_ID,
+    HAND_ROWS,
+    IS_DEV,
+    TILES_TO_DRAW
 } from "./constants";
 import {orderByColorVal, orderByValColor} from "./orderTiles";
 
 
 const Rummikub = {
     name: GAME_NAME,
-    setup: function (ctx, setupData) {
+    setup: function ({ctx, random}, setupData) {
         console.debug('GAME SETUP CALLED. CTX:', ctx)
-        let pool = ctx.random.Shuffle(getTiles())
+        let pool = random.Shuffle(getTiles())
         let board = Array.from(Array(BOARD_ROWS), _ => Array(BOARD_COLS).fill(null));
         let hands = []
         let firstMoveDone = []
