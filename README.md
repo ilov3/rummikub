@@ -9,6 +9,11 @@ Some differences from original rules:
 2. After first move ("initial meld") is done, player should pick two tile instead of one 
    (in case if he forced/wants to skip his turn)
 
+### Features
+- Online multiplayer 2-4 players
+- Visualised turn timer
+- Tile drag/drop including multi-tile selection (using `Shift` key)
+- Achieved points results on game end
 
 ### Screenshots
 
