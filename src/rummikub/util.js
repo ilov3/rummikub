@@ -1,5 +1,5 @@
 import _ from "lodash";
-import {COLOR, COLORS} from "./constants";
+import {BOARD_COLS, BOARD_GRID_ID, BOARD_ROWS, COLOR, COLORS, HAND_COLS, HAND_GRID_ID, HAND_ROWS} from "./constants";
 import {original} from "immer";
 
 let isPrimitive = (val) => {
@@ -481,6 +481,32 @@ function stringToColor(str) {
     return `hsl(${hue}, 70%, 50%)`;
 }
 
+function buildGridsFromTilePositions(tilePositions, numPlayers) {
+    const board = Array.from({length: BOARD_ROWS}, () => Array(BOARD_COLS).fill(null));
+    const hands = Array.from({length: numPlayers}, () =>
+        Array.from({length: HAND_ROWS}, () => Array(HAND_COLS).fill(null))
+    );
+
+    for (const tileId in tilePositions) {
+        const pos = tilePositions[tileId];
+        const {row, col, gridId, playerID} = pos;
+
+        if (gridId === BOARD_GRID_ID) {
+            if (row < BOARD_ROWS && col < BOARD_COLS) {
+                board[row][col] = tileId;
+            }
+        } else if (gridId === HAND_GRID_ID && playerID != null) {
+            const pId = parseInt(playerID);
+            if (pId < numPlayers && row < HAND_ROWS && col < HAND_COLS) {
+                hands[pId][row][col] = tileId;
+            }
+        }
+    }
+
+    return {board, hands};
+}
+
+
 export {
     buildTileObj,
     getTileValue,
@@ -511,4 +537,5 @@ export {
     getTileReadableName,
     copyToClipboard,
     stringToColor,
+    buildGridsFromTilePositions,
 }
