@@ -1,6 +1,5 @@
-import React, {useMemo} from "react";
-import styled from 'styled-components'
 import GridSlot from "./GridSlot";
+import {useState} from "react";
 
 const Centered = function ({cols, colWidth, children}) {
     return <div
@@ -36,8 +35,10 @@ const GridContainer = function ({
                                     handleTileSelection,
                                     moves,
                                     playerID,
-                                    draggingTiles
+                                    hoverPosition,
+                                    setHoverPosition
                                 }) {
+
     let colWidth = 2.2
     let gridItems = []
     let key = 0
@@ -59,9 +60,8 @@ const GridContainer = function ({
                 col={x}
                 key={key}
                 tile={tile}
-                moves={moves}
-                playerID={playerID}
-                draggingTiles={draggingTiles}
+                hoverPosition={hoverPosition}
+                setHoverPosition={setHoverPosition}
             />
             gridItems.push(gridTile)
             key++

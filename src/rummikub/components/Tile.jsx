@@ -1,30 +1,13 @@
 import React, {useCallback, useState} from 'react';
-import {useRef, useEffect} from "react";
+import {useEffect} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faSmileBeam} from "@fortawesome/free-solid-svg-icons";
 import {getTileValue, isJoker, getTileColor} from "../util";
 import {useDrag} from 'react-dnd';
 import {getEmptyImage} from "react-dnd-html5-backend";
-import _ from "lodash";
 import useLongPress from "../hooks/useLongPress";
-import {COLORS, HAND_GRID_ID, TILE_WIDTH} from "../constants";
+import {COLORS, TILE_WIDTH} from "../constants";
 
-
-function useDebouncedCallback(callback, delay) {
-    const callbackRef = useRef(callback);
-    const timeoutRef = useRef();
-
-    useEffect(() => {
-        callbackRef.current = callback;
-    }, [callback]);
-
-    return useCallback((...args) => {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = setTimeout(() => {
-            callbackRef.current(...args);
-        }, delay);
-    }, [delay]);
-}
 
 function getAbsolutePosition(relativePosition) {
     return {
@@ -107,8 +90,6 @@ export function Tile({
                          onTileDragEnd,
                          handleLongPress,
                          onLongPressMouseUp,
-                         moves,
-                         playerID,
                          selectedTiles
                      }) {
     const longPressTimeout = 250
@@ -117,7 +98,12 @@ export function Tile({
         return {
             type: 'tile',
             item: function (monitor) {
-                return {id: tile}
+                const draggedIndex = selectedTiles.indexOf(tile);
+                return {
+                    id: tile,
+                    selectedTiles,
+                    draggedIndex,
+                };
             },
             end: function (draggedItem, monitor) {
                 let didDrop = monitor.didDrop()

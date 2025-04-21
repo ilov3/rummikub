@@ -8,7 +8,6 @@ import GameMatch from "./rummikub/components/Match";
 import {Client} from "boardgame.io/react";
 import {Rummikub} from "./rummikub/Game";
 import RummikubBoard from "./rummikub/components/Board";
-import {Local} from "boardgame.io/multiplayer";
 import JoinGamePage from "./rummikub/components/JoinGamePage";
 
 function getTestPlayerClient() {

@@ -4,7 +4,7 @@ import GridContainer from "./GridContainer";
 import {DndProvider} from 'react-dnd'
 import {HTML5Backend} from 'react-dnd-html5-backend'
 import {
-    HAND_GRID_ID, BOARD_GRID_ID, BOARD_ROWS, BOARD_COLS, HAND_ROWS, HAND_COLS
+    HAND_GRID_ID, BOARD_GRID_ID, BOARD_ROWS, BOARD_COLS, HAND_ROWS, HAND_COLS, IS_DEV
 } from "../constants";
 import Sidebar from "./Sidebar";
 import {extractSeqs, isBoardHasNewTiles, isBoardValid} from "../moveValidation";
@@ -16,15 +16,6 @@ import _ from "lodash";
 
 const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, events}) {
     console.log('RENDER BOARD')
-    const boardGridRef = useRef(null);
-    const [boardGriBoundingBox, setboardGriBoundingBox] = useState({});
-    useEffect(() => {
-        if (boardGridRef.current) {
-            const rect = boardGridRef.current.getBoundingClientRect();
-            setboardGriBoundingBox(rect);
-        }
-    }, []);
-
 
     useEffect(() => {
         if (playerID === '0' && ctx.phase === 'playersJoin' && _.every(matchData, (item) => item.name)) {
@@ -33,11 +24,10 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, ev
         }
     }, [matchData])
 
-
     const [state, setState] = useState({selectedTiles: [], lastSelectedTileId: null})
     const [showInvalidTiles, setShowInvalidTiles] = useState(false);
     const [validTiles, setValidTiles] = useState([])
-    const [draggingTiles, setDraggingTiles] = useState([])
+    const [hoverPosition, setHoverPosition] = useState({})
     let longPressTimeoutId = useRef(null)
 
     const moveTilesUseCb = useCallback((col, row, destGridId, tileIdObj, selectedTiles) => {
@@ -148,7 +138,7 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, ev
                              }}>Redo
     </button>)
 
-    const boardGrid = (<div className="ref" ref={boardGridRef}>
+    const boardGrid = (<div className="ref">
         <GridContainer
             rows={BOARD_ROWS}
             cols={BOARD_COLS}
@@ -165,7 +155,8 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, ev
             onLongPressMouseUp={onLongPressMouseUp}
             moves={moves}
             playerID={playerID}
-            draggingTiles={draggingTiles}
+            hoverPosition={hoverPosition}
+            setHoverPosition={setHoverPosition}
         /></div>)
 
     const handGrid = (
@@ -183,7 +174,8 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, ev
                        onLongPressMouseUp={onLongPressMouseUp}
                        moves={moves}
                        playerID={playerID}
-                       draggingTiles={draggingTiles}
+                       hoverPosition={hoverPosition}
+                       setHoverPosition={setHoverPosition}
         />)
 
     const sidebar = (
@@ -248,8 +240,6 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, ev
                 G={G}
                 playerID={playerID}
                 selectedTiles={state.selectedTiles}
-                draggingTiles={draggingTiles}
-                setDraggingTiles={useCallback(setDraggingTiles, [])}
             />
         </div>
     </DndProvider>

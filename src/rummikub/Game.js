@@ -18,13 +18,12 @@ const Rummikub = {
     name: GAME_NAME,
     setup: function ({ctx, random}, setupData) {
         console.debug('GAME SETUP CALLED. CTX:', ctx)
-        let pool = random.Shuffle(getTiles())
+        let pool = IS_DEV ? getTiles() : random.Shuffle(getTiles())
         let board = Array.from(Array(BOARD_ROWS), _ => Array(BOARD_COLS).fill(null));
         let hands = []
         let firstMoveDone = []
         let tilePositions = {}
         if (IS_DEV) {
-            let pool = getTiles()
             for (let p = 0; p < ctx.numPlayers; p++) {
                 let tilesToDraw = 3
                 let hand = Array.from(Array(HAND_ROWS), _ => Array(HAND_COLS).fill(null));

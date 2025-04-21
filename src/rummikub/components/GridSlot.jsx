@@ -1,26 +1,6 @@
-import React, {useEffect, useRef} from 'react';
 import {useDrop} from 'react-dnd'
 import {Tile} from "./Tile";
-import {HAND_GRID_ID} from "../constants";
-import {arraysEqual} from "../util";
-import {debounce, throttle} from "lodash";
 
-
-function useTraceUpdate(props) {
-    const prev = useRef(props);
-    useEffect(() => {
-        const changedProps = Object.entries(props).reduce((ps, [k, v]) => {
-            if (prev.current[k] !== v) {
-                ps[k] = [prev.current[k], v];
-            }
-            return ps;
-        }, {});
-        if (Object.keys(changedProps).length > 0) {
-            console.debug('Changed props:', changedProps);
-        }
-        prev.current = props;
-    });
-}
 
 const GridSlot =
     ({
@@ -37,12 +17,10 @@ const GridSlot =
          handleLongPress,
          onTileDragEnd,
          onLongPressMouseUp,
-         moves,
-         playerID,
-         draggingTiles,
+         hoverPosition,
+         setHoverPosition,
      }) => {
         const isSelected = tile && selectedTiles.indexOf(tile) !== -1 ? true : false
-        const isDragging = tile && draggingTiles.indexOf(tile) !== -1 ? true : false
 
         function collector(monitor) {
             return {isOver: monitor.isOver()}
@@ -53,12 +31,24 @@ const GridSlot =
             drop: function (tileIdObj) {
                 console.debug(`DROP ACTION: ${gridId}::${col}::${row}`, selectedTiles, Date.now())
                 moveTiles(col, row, gridId, tileIdObj, selectedTiles)
+                setHoverPosition({})
+            },
+            hover: () => {
+                // This fires when a tile is dragged *over* this slot
+                setHoverPosition({col, row, gridId}); // set from parent scope via prop
             },
             canDrop: () => {
                 return canDnD
             },
             collect: collector,
         }), [tile, canDnD, selectedTiles])
+
+        let isHighlighted = false;
+        if (hoverPosition && hoverPosition.row === row && hoverPosition.gridId === gridId) {
+            const rangeCols = Array.from({length: selectedTiles.length}, (_, i) => hoverPosition.col + i);
+            isHighlighted = rangeCols.includes(col);
+        }
+
 
         if (tile) {
             let isValid
@@ -79,9 +69,6 @@ const GridSlot =
                         handleTileSelection={handleTileSelection}
                         handleLongPress={handleLongPress}
                         onLongPressMouseUp={onLongPressMouseUp}
-                        moves={moves}
-                        playerID={playerID}
-                        isDragging={isDragging}
                         selectedTiles={selectedTiles}
                     />
                 </div>
@@ -89,7 +76,7 @@ const GridSlot =
         } else {
             return <div
                 ref={drop}
-                style={{backgroundColor: canDnD && isOver ? 'rgba(71,179,86,0.43)' : ''}}
+                style={{backgroundColor: (canDnD && isHighlighted) || (canDnD && isOver) ? 'rgba(71,179,86,0.43)' : ''}}
                 className='grid-item'/>
         }
 

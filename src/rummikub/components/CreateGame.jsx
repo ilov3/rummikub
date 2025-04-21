@@ -12,7 +12,7 @@ const CreateGameForm = function () {
     const [username, setUsername] = useState(IS_DEV ? 'test' : '')
     const [numPlayers, setNumPlayers] = useState(IS_DEV ? '2' : '4')
     const [matchID, setMatchID] = useState('')
-    const [timePerTurn, setTimePerTurn] = useState(IS_DEV ? '10' : '30')
+    const [timePerTurn, setTimePerTurn] = useState(IS_DEV ? '30' : '30')
 
     function onGameCreate(event) {
         event.preventDefault();
@@ -76,6 +76,7 @@ const CreateGameForm = function () {
                     <option>40</option>
                     <option>50</option>
                     <option>60</option>
+                    {IS_DEV && <option>3600</option>}
                 </Form.Control>
             </Form.Group>
             <Button onClick={onGameCreate}
