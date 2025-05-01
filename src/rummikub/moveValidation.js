@@ -1,6 +1,6 @@
 import _ from "lodash";
-import {arraysEqual, countSeqScore, isSequenceValid} from "./util.js";
-import {BOARD_COLS, BOARD_ROWS, FIRST_MOVE_SCORE_LIMIT} from "./constants";
+import {countSeqScore, isSequenceValid} from "./util.js";
+import {FIRST_MOVE_SCORE_LIMIT, BOARD_GRID_ID} from "./constants";
 
 
 function freezeTmpTiles(G) {
@@ -22,29 +22,52 @@ function isBoardHasNewTiles(G) {
     return false
 }
 
-function extractSeqs(board) {
-    let seqs = []
-    const rows = board.length
-    const cols = board[0].length
-    for (let row = 0; row < rows; row++) {
-        let seq = []
-        for (let col = 0; col < cols; col++) {
-            let tile = board[row][col]
-            if (tile) {
-                seq.push(tile)
+function extractSeqs(G) {
+    const seqs = [];
+
+    // Group all tile positions on the board by row
+    const tilesByRow = {};
+    for (const tileId in G.tilePositions) {
+        const pos = G.tilePositions[tileId];
+        if (pos.gridId === BOARD_GRID_ID) {
+            if (!tilesByRow[pos.row]) {
+                tilesByRow[pos.row] = {};
+            }
+            tilesByRow[pos.row][pos.col] = tileId;
+        }
+    }
+
+    // For each row, scan left to right and extract contiguous sequences
+    for (const rowStr of Object.keys(tilesByRow)) {
+        const row = parseInt(rowStr);
+        const rowTiles = tilesByRow[row];
+        const cols = Object.keys(rowTiles).map(Number).sort((a, b) => a - b);
+
+        let seq = [];
+        for (let i = 0; i < cols.length; i++) {
+            const col = cols[i];
+            const tileId = rowTiles[col];
+
+            if (seq.length === 0 || col === cols[i - 1] + 1) {
+                seq.push(tileId);
             } else {
                 if (seq.length > 0) {
-                    seqs.push(seq)
-                    seq = []
+                    seqs.push(seq);
+                    seq = [tileId];
                 }
             }
         }
+        if (seq.length > 0) {
+            seqs.push(seq);
+        }
     }
-    return seqs
+
+    return seqs;
 }
 
-function isBoardValid(board) {
-    let seqs = extractSeqs(board)
+
+function isBoardValid(G) {
+    let seqs = extractSeqs(G)
     for (const seq of seqs) {
         if (!isSequenceValid(seq)) {
             return false
@@ -54,7 +77,7 @@ function isBoardValid(board) {
 }
 
 function isMoveValid(G, ctx) {
-    let seqs = extractSeqs(G.board)
+    let seqs = extractSeqs(G)
 
     let newFound = _.find(seqs, function (seq) {
         for (let tile of seq) {
@@ -82,7 +105,7 @@ function isFirstMove(G, ctx) {
 }
 
 function isFirstMoveValid(G, ctx) {
-    let seqs = extractSeqs(G.board)
+    let seqs = extractSeqs(G)
     console.debug(seqs)
 
     let mixed = _.find(seqs, function (seq) {

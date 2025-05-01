@@ -33,10 +33,9 @@ const GridContainer = function ({
                                     onLongPressMouseUp,
                                     handleLongPress,
                                     handleTileSelection,
-                                    moves,
-                                    playerID,
                                     hoverPosition,
-                                    setHoverPosition
+                                    setHoverPosition,
+                                    newlyAdded
                                 }) {
 
     let colWidth = 2.2
@@ -62,6 +61,7 @@ const GridContainer = function ({
                 tile={tile}
                 hoverPosition={hoverPosition}
                 setHoverPosition={setHoverPosition}
+                newlyAdded={newlyAdded}
             />
             gridItems.push(gridTile)
             key++

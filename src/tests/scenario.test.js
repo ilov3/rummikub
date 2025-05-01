@@ -15,37 +15,6 @@ test('test game finish on no tiles on hand', () => {
         ...Rummikub,
         setup: function () {
             let pool = getTiles()
-            let hands = [
-                [
-                    [
-                        buildTileObj(11, COLOR.blue, 0),
-                        buildTileObj(12, COLOR.blue, 0),
-                        buildTileObj(13, COLOR.blue, 0),
-                        null, null, null, null, null, null, null, null, null, null, null,
-                    ],
-                    [
-                        null, null, null, null, null, null, null, null, null, null, null, null, null, null
-                    ],
-                    [
-                        null, null, null, null, null, null, null, null, null, null, null, null, null, null
-                    ],
-                ],
-                [
-                    [
-                        buildTileObj(11, COLOR.red, 0),
-                        buildTileObj(12, COLOR.red, 0),
-                        buildTileObj(13, COLOR.red, 0),
-                        null, null, null, null, null, null, null, null, null, null, null,
-                    ],
-                    [
-                        null, null, null, null, null, null, null, null, null, null, null, null, null, null
-                    ],
-                    [
-                        null, null, null, null, null, null, null, null, null, null, null, null, null, null
-                    ],
-                ],
-            ]
-            let board = Array.from(Array(BOARD_ROWS), _ => Array(BOARD_COLS).fill(null));
             let firstMoveDone = [true, true]
 
             let tilePositions = {}
@@ -59,9 +28,6 @@ test('test game finish on no tiles on hand', () => {
             return {
                 timePerTurn: 60,
                 tilesPool: pool,
-                hands: hands,
-                board: board,
-                prevBoard: board,
                 tilePositions: tilePositions,
                 prevTilePositions: tilePositions,
                 firstMoveDone: firstMoveDone,
@@ -94,7 +60,7 @@ test('test game finish on no tiles on hand', () => {
     client1.events.endTurn()
     const {G, ctx} = client1.getState();
 
-    expect(ctx.gameover).toEqual({winner: '0', points: 36})
+    expect(ctx.gameover).toEqual({winner: '0', points: {0: 36, 1: -36}})
 });
 
 test('test game finish on no tiles on pool', () => {
@@ -102,39 +68,6 @@ test('test game finish on no tiles on pool', () => {
         ...Rummikub,
         setup: function () {
             let pool = [buildTileObj(9, COLOR.blue, 0),]
-            let hands = [
-                [
-                    [
-                        buildTileObj(11, COLOR.blue, 0),
-                        buildTileObj(12, COLOR.blue, 0),
-                        buildTileObj(13, COLOR.blue, 0),
-                        buildTileObj(1, COLOR.blue, 0),
-                        null, null, null, null, null, null, null, null, null, null, null,
-                    ],
-                    [
-                        null, null, null, null, null, null, null, null, null, null, null, null, null, null
-                    ],
-                    [
-                        null, null, null, null, null, null, null, null, null, null, null, null, null, null
-                    ],
-                ],
-                [
-                    [
-                        buildTileObj(11, COLOR.red, 0),
-                        buildTileObj(12, COLOR.red, 0),
-                        buildTileObj(13, COLOR.red, 0),
-                        buildTileObj(1, COLOR.red, 0),
-                        null, null, null, null, null, null, null, null, null, null, null,
-                    ],
-                    [
-                        null, null, null, null, null, null, null, null, null, null, null, null, null, null
-                    ],
-                    [
-                        null, null, null, null, null, null, null, null, null, null, null, null, null, null
-                    ],
-                ],
-            ]
-            let board = Array.from(Array(BOARD_ROWS), _ => Array(BOARD_COLS).fill(null));
             let firstMoveDone = [true, true]
             let tilePositions = {}
             tilePositions[43] = {id: 43, col: 0, row: 0, gridId: HAND_GRID_ID, playerID: "0"}
@@ -150,9 +83,6 @@ test('test game finish on no tiles on pool', () => {
             return {
                 timePerTurn: 60,
                 tilesPool: pool,
-                hands: hands,
-                board: board,
-                prevBoard: board,
                 tilePositions: tilePositions,
                 prevTilePositions: tilePositions,
                 firstMoveDone: firstMoveDone,
@@ -198,7 +128,7 @@ test('test game finish on no tiles on pool', () => {
     expect(G.lastCircle).toEqual(['0', '1']);
     // p1 move
     client1.moves.endTurn();
-    // client.moves.endTurn()
+
     ({G, ctx} = client0.getState());
     expect(ctx.gameover).toEqual({winner: '1', points: 10})
 });

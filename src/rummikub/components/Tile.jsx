@@ -16,7 +16,7 @@ function getAbsolutePosition(relativePosition) {
     };
 }
 
-function TilePreview({tile, isSelected, isDragging, isValid, position, boardGriBoundingBox, index}) {
+function TilePreview({tile, isSelected, isDragging, isValid, position, boardGriBoundingBox, index, newlyAdded}) {
     if (!tile) return null
     if (position && boardGriBoundingBox) {
         let absPos = getAbsolutePosition(position);
@@ -33,7 +33,7 @@ function TilePreview({tile, isSelected, isDragging, isValid, position, boardGriB
     let val = isJoker(tile) ? <FontAwesomeIcon icon={faSmileBeam}/> : getTileValue(tile)
     return (
         <div
-            style={getTileStyle(isSelected, isDragging, isValid, position, index)}
+            style={getTileStyle(isSelected, isDragging, isValid, position, index, newlyAdded)}
             className="tile tile-clickable border-dark">
             <div className={"tile-text tile-" + COLORS[getTileColor(tile)]}>{val}</div>
             <div className={"tile-subscript"}></div>
@@ -46,7 +46,7 @@ function getTileWidth() {
     return (TILE_WIDTH * viewportWidth) / 100;
 }
 
-function getTileStyle(selected, isDragging, isValid, position, index) {
+function getTileStyle(selected, isDragging, isValid, position, index, newlyAdded) {
     let backgroundColor = ''
     let border = ''
     let borderColor = ''
@@ -60,6 +60,10 @@ function getTileStyle(selected, isDragging, isValid, position, index) {
         backgroundColor = '#c0c0c0'
         border = '2px solid'
         borderColor = '#6416ff'
+    }
+
+    if (newlyAdded === true) {
+        backgroundColor = 'rgba(255,199,78,0.88)'
     }
 
     let result = {
@@ -90,7 +94,8 @@ export function Tile({
                          onTileDragEnd,
                          handleLongPress,
                          onLongPressMouseUp,
-                         selectedTiles
+                         selectedTiles,
+                         newlyAdded
                      }) {
     const longPressTimeout = 250
     const [longPressTriggered, setLongPress] = useState(false)
@@ -160,6 +165,7 @@ export function Tile({
             isSelected={isSelected}
             isDragging={isDragging}
             isValid={isValid}
+            newlyAdded={newlyAdded.includes(parseInt(tile))}
         />
     </div>
 }

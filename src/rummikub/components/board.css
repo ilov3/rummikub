@@ -233,3 +233,7 @@ svg.fa-smile-beam {
     background-color: #d6e0f0;
     color: #004080;
 }
+
+.tile-pool-counter {
+  font-size: 1.2rem;
+}

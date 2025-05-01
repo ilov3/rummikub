@@ -19,6 +19,7 @@ const GridSlot =
          onLongPressMouseUp,
          hoverPosition,
          setHoverPosition,
+         newlyAdded
      }) => {
         const isSelected = tile && selectedTiles.indexOf(tile) !== -1 ? true : false
 
@@ -70,6 +71,7 @@ const GridSlot =
                         handleLongPress={handleLongPress}
                         onLongPressMouseUp={onLongPressMouseUp}
                         selectedTiles={selectedTiles}
+                        newlyAdded={newlyAdded}
                     />
                 </div>
             )

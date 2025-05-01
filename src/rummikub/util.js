@@ -1,5 +1,5 @@
 import _ from "lodash";
-import {COLOR, COLORS} from "./constants";
+import {BOARD_COLS, BOARD_GRID_ID, BOARD_ROWS, COLOR, COLORS, HAND_COLS, HAND_GRID_ID, HAND_ROWS} from "./constants";
 import {original} from "immer";
 
 let isPrimitive = (val) => {
@@ -77,11 +77,6 @@ function setTileColor(tile, color) {
     return idAndValue | newColor;
 }
 
-
-function getTileById(tileId) {
-    const [variant, value, color] = tileId.split('-')
-    return buildTileObj(parseInt(value), color, parseInt(variant))
-}
 
 const RedJoker = buildTileObj(14, COLOR.red, 0)
 const BlackJoker = buildTileObj(14, COLOR.black, 0)
@@ -438,9 +433,6 @@ function getSecTs() {
 
 function getGameState(G) {
     return {
-        hands: original(G.hands),
-        board: original(G.board),
-        prevBoard: original(G.prevBoard),
         tilePositions: original(G.tilePositions),
         prevTilePositions: original(G.prevTilePositions),
     }
@@ -481,13 +473,65 @@ function stringToColor(str) {
     return `hsl(${hue}, 70%, 50%)`;
 }
 
+function buildGridsFromTilePositions(tilePositions, numPlayers) {
+    const board = Array.from({length: BOARD_ROWS}, () => Array(BOARD_COLS).fill(null));
+    const hands = Array.from({length: numPlayers}, () =>
+        Array.from({length: HAND_ROWS}, () => Array(HAND_COLS).fill(null))
+    );
+
+    for (const tileId in tilePositions) {
+        const pos = tilePositions[tileId];
+        const {row, col, gridId, playerID} = pos;
+
+        if (gridId === BOARD_GRID_ID) {
+            if (row < BOARD_ROWS && col < BOARD_COLS) {
+                board[row][col] = tileId;
+            }
+        } else if (gridId === HAND_GRID_ID && playerID != null) {
+            const pId = parseInt(playerID);
+            if (pId < numPlayers && row < HAND_ROWS && col < HAND_COLS) {
+                hands[pId][row][col] = tileId;
+            }
+        }
+    }
+
+    return {board, hands};
+}
+
+function getPlayerHandTiles(G, playerID) {
+    return Object.entries(G.tilePositions)
+        .filter(([_, pos]) =>
+            pos.gridId === HAND_GRID_ID && pos.playerID === playerID
+        )
+        .map(([tileId, _]) => tileId);
+}
+
+function getHandsTilesGrid(G, numPlayers) {
+    const hands = Array.from({ length: numPlayers }, () =>
+        Array.from({ length: HAND_ROWS }, () => Array(HAND_COLS).fill(null))
+    );
+
+    for (const [tileId, pos] of Object.entries(G.tilePositions)) {
+        if (pos.gridId === HAND_GRID_ID && pos.playerID != null) {
+            const playerIndex = parseInt(pos.playerID);
+            if (!isNaN(playerIndex)) {
+                hands[playerIndex][pos.row][pos.col] = tileId;
+            }
+        }
+    }
+
+    return hands;
+}
+
+
+
+
 export {
     buildTileObj,
     getTileValue,
     getTileColor,
     setTileValue,
     setTileColor,
-    getTileById,
     getTiles,
     isJoker,
     isSequenceValid,
@@ -511,4 +555,7 @@ export {
     getTileReadableName,
     copyToClipboard,
     stringToColor,
+    buildGridsFromTilePositions,
+    getPlayerHandTiles,
+    getHandsTilesGrid,
 }
