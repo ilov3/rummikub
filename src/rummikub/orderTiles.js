@@ -1,25 +1,37 @@
 import _ from "lodash";
-import {getTileColor, getTileValue, groupValidSequences, getGameState, deactivateTileVariant} from "./util";
-import {HAND_GRID_ID} from "./constants";
+import {
+    getTileColor,
+    getTileValue,
+    groupValidSequences,
+    getGameState,
+    deactivateTileVariant,
+    getPlayerHandTiles
+} from "./util";
+import {HAND_COLS, HAND_GRID_ID, HAND_ROWS} from "./constants";
 
-function pushTilesToGrid(tiles, grid, G, flags, ctx, override) {
-    let rowsCnt = grid.length
-    let colsCnt = grid[0].length
+function isTileSlotEmpty(G, gridId, row, col, playerID = null) {
+    return !Object.values(G.tilePositions).some(pos =>
+        pos &&
+        pos.gridId === gridId &&
+        pos.row === row &&
+        pos.col === col &&
+        (playerID === null || pos.playerID === playerID)
+    );
+}
 
-    for (let row = 0; row < rowsCnt; row++) {
-        for (let col = 0; col < colsCnt; col++) {
-            if (!grid[row][col] || override) {
-                let tile = tiles.shift()
+function pushTilesToGrid(tiles, grid_rows, grid_cols, G, flags, ctx, override) {
+    let tilesCopy = tiles.slice()
+    for (let row = 0; row < grid_rows; row++) {
+        for (let col = 0; col < grid_cols; col++) {
+            if (isTileSlotEmpty(G, flags.gridId, row, col, flags.playerID) || override) {
+                let tile = tilesCopy.shift()
                 if (tile) {
-                    grid[row][col] = tile
                     G.tilePositions[tile] = {
                         id: tile,
                         col: col,
                         row: row,
                         ...flags,
                     }
-                } else {
-                    grid[row][col] = null
                 }
             }
         }
@@ -81,10 +93,10 @@ function orderBy(G, ctx, sortingFunc, playerID) {
     if (playerID == ctx.currentPlayer) {
         G.gameStateStack.push(getGameState(G))
     }
-    let tiles = G.hands[playerID]
+    let tiles = getPlayerHandTiles(G, playerID)
     let sorted = orderByFunc(tiles, sortingFunc)
 
-    pushTilesToGrid(groupValidSequences(sorted), G.hands[playerID], G,
+    pushTilesToGrid(groupValidSequences(sorted), HAND_ROWS, HAND_COLS, G,
         {gridId: HAND_GRID_ID, playerID: playerID}, ctx, true)
 }
 

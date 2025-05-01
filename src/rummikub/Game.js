@@ -9,50 +9,28 @@ const Rummikub = {
     name: GAME_NAME,
     setup: function ({ctx, random}, setupData) {
         console.debug('GAME SETUP CALLED. CTX:', ctx)
-        let pool = IS_DEV ? getTiles() : random.Shuffle(getTiles())
+        let pool = random.Shuffle(getTiles())
         let firstMoveDone = []
         let tilePositions = {}
-        if (IS_DEV) {
-            for (let p = 0; p < ctx.numPlayers; p++) {
-                let tilesToDraw = 3
-                for (let row = 0; row < HAND_ROWS; row++) {
-                    for (let col = 0; col < HAND_COLS; col++) {
-                        if (tilesToDraw > 0) {
-                            let tile = pool.shift()
-                            tilePositions[tile] = {
-                                id: tile,
-                                col: col,
-                                row: row,
-                                gridId: HAND_GRID_ID,
-                                playerID: p.toString()
-                            }
-                            tilesToDraw--
-                        }
-                    }
-                }
-                firstMoveDone.push(true)
-            }
 
-        } else {
-            for (let p = 0; p < ctx.numPlayers; p++) {
-                let tilesToDraw = TILES_TO_DRAW
-                for (let row = 0; row < HAND_ROWS; row++) {
-                    for (let col = 0; col < HAND_COLS; col++) {
-                        if (tilesToDraw > 0) {
-                            let tile = pool.pop()
-                            tilePositions[tile] = {
-                                id: tile,
-                                col: col,
-                                row: row,
-                                gridId: HAND_GRID_ID,
-                                playerID: p.toString()
-                            }
-                            tilesToDraw--
+        for (let p = 0; p < ctx.numPlayers; p++) {
+            let tilesToDraw = TILES_TO_DRAW
+            for (let row = 0; row < HAND_ROWS; row++) {
+                for (let col = 0; col < HAND_COLS; col++) {
+                    if (tilesToDraw > 0) {
+                        let tile = pool.pop()
+                        tilePositions[tile] = {
+                            id: tile,
+                            col: col,
+                            row: row,
+                            gridId: HAND_GRID_ID,
+                            playerID: p.toString()
                         }
+                        tilesToDraw--
                     }
                 }
-                firstMoveDone.push(false)
             }
+            firstMoveDone.push(false)
         }
         return {
             timePerTurn: (setupData ? setupData.timePerTurn : 10) * 1000,
@@ -64,6 +42,7 @@ const Rummikub = {
             gameStateStack: [],
             redoMoveStack: [],
             lastCircle: [],
+            recentlyDrawnTiles: [],
         }
     },
     phases: {
@@ -90,6 +69,7 @@ const Rummikub = {
         endTurn,
         undo,
         redo,
+        clearRecentlyDrawnTiles: ({G, ctx}) => {G.recentlyDrawnTiles = []}
     },
     turn: {
         activePlayers: {all: Stage.NULL},

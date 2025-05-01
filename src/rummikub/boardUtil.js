@@ -1,126 +1,150 @@
-import {BlackJoker, getTileById, isSequenceValid, transpose, tryOrderTiles} from "./util";
-import {getGridByIdPlayer} from "./moves";
-import _ from "lodash";
+import {isSequenceValid, tryOrderTiles} from "./util";
+import {HAND_GRID_ID} from "./constants";
 
 function getNextTile(G, playerID, tileId) {
-    let tilePos = G.tilePositions[tileId]
-    let grid = getGridByIdPlayer(G, tilePos.gridId, playerID)
-    if (tilePos.col + 1 < grid[0].length) {
-        return grid[tilePos.row][tilePos.col + 1]
-    } else {
-        return grid[tilePos.row + 1] && grid[tilePos.row + 1][0]
+    const currentPos = G.tilePositions[tileId];
+    if (!currentPos) return null;
+
+    const gridId = currentPos.gridId;
+    const sameGridTiles = Object.entries(G.tilePositions)
+        .filter(([_, pos]) => {
+            if (pos.gridId !== gridId) return false;
+            if (gridId === HAND_GRID_ID && pos.playerID !== playerID) return false;
+            return true;
+        });
+
+    const nextTileEntry = sameGridTiles.find(([_, pos]) =>
+        pos.row === currentPos.row && pos.col === currentPos.col + 1
+    );
+
+    if (nextTileEntry) {
+        const [nextTileId] = nextTileEntry;
+        return nextTileId;
     }
+
+    return null;
 }
+
+
+
+function getTilesInSameRow(G, tilePos) {
+    return Object.entries(G.tilePositions)
+        .filter(([id, pos]) =>
+            pos.gridId === tilePos.gridId &&
+            pos.row === tilePos.row &&
+            (tilePos.playerID === undefined || pos.playerID === tilePos.playerID)
+        )
+        .sort((a, b) => a[1].col - b[1].col); // Sort by column
+}
+
+function getTilesInSameCol(G, tilePos) {
+    return Object.entries(G.tilePositions)
+        .filter(([id, pos]) =>
+            pos.gridId === tilePos.gridId &&
+            pos.col === tilePos.col &&
+            (tilePos.playerID === undefined || pos.playerID === tilePos.playerID)
+        )
+        .sort((a, b) => a[1].row - b[1].row); // Sort by row
+}
+
 
 function handleTileSelection(G, state, setState, playerID, tileId, shiftKey, ctrlKey) {
-    let tilePos = G.tilePositions[tileId]
-    console.debug('HANDLING CLICK ON TILE:', tileId, tilePos)
+    const tilePos = G.tilePositions[tileId];
+    console.debug('HANDLING CLICK ON TILE:', tileId, tilePos);
+
     if (ctrlKey) {
         setState((prevState) => {
-            if (prevState.selectedTiles.includes(tileId)) {
-                return {
-                    selectedTiles: prevState.selectedTiles.filter(id => tileId !== id),
-                    lastSelectedTileId: prevState.lastSelectedTileId
-                }
-            }
-            let tiles = prevState.selectedTiles.map(tileId => getTileById(tileId))
-            tiles.push(getTileById(tileId))
-            let sorted = tryOrderTiles(tiles)
+            const isSelected = prevState.selectedTiles.includes(tileId);
+            const newSelected = isSelected
+                ? prevState.selectedTiles.filter(id => id !== tileId)
+                : tryOrderTiles([...prevState.selectedTiles, tileId]);
             return {
-                selectedTiles: sorted,
-                lastSelectedTileId: prevState.lastSelectedTileId
-            }
-        })
-        return
+                selectedTiles: newSelected,
+                lastSelectedTileId: prevState.lastSelectedTileId,
+            };
+        });
+        return;
     }
-    if (!shiftKey) {
-        setState({selectedTiles: [tileId], lastSelectedTileId: tileId})
-    } else if (state.lastSelectedTileId) {
-        let lastSelectedTileId = state.lastSelectedTileId
-        let lastSelectedPos = G.tilePositions[lastSelectedTileId]
-        if (lastSelectedPos.gridId !== tilePos.gridId) {
-            console.debug('SELECTION CANCELED: GRID ID MISMATCH')
-            return
-        } else if (lastSelectedPos.row === tilePos.row || lastSelectedPos.col === tilePos.col) {
-            let grid = getGridByIdPlayer(G, tilePos.gridId, playerID)
-            let gridRow = grid[tilePos.row]
-            if (lastSelectedPos.col === tilePos.col) {
-                grid = transpose(grid)
-                gridRow = grid[tilePos.col]
-            }
-            let findex = _.findIndex(gridRow, tile => tile && tile === tileId)
-            let sindex = _.findIndex(gridRow, tile => tile && tile === lastSelectedTileId)
-            console.debug(findex, sindex)
-            let left = _.min([findex, sindex])
-            let right = _.max([findex, sindex])
-            console.debug(left, right)
-            let selectedTiles = []
-            for (let i = left; i <= right; i++) {
-                if (gridRow[i]) {
-                    selectedTiles.push(gridRow[i])
-                } else {
-                    break
-                }
-            }
-            let sorted = tryOrderTiles(selectedTiles)
-            setState({selectedTiles: sorted.map(tile => tile), lastSelectedTileId: null})
-        }
+
+    if (!shiftKey || !state.lastSelectedTileId) {
+        setState({selectedTiles: [tileId], lastSelectedTileId: tileId});
+        return;
     }
+
+    const lastSelectedId = state.lastSelectedTileId;
+    const lastPos = G.tilePositions[lastSelectedId];
+
+    if (!lastPos || lastPos.gridId !== tilePos.gridId || (tilePos.playerID !== undefined && lastPos.playerID !== tilePos.playerID)) {
+        console.debug('SELECTION CANCELED: GRID ID MISMATCH');
+        return;
+    }
+
+    let selectedTiles = [];
+
+    if (lastPos.row === tilePos.row) {
+        const tilesInRow = getTilesInSameRow(G, tilePos);
+        const minCol = Math.min(lastPos.col, tilePos.col);
+        const maxCol = Math.max(lastPos.col, tilePos.col);
+
+        selectedTiles = tilesInRow
+            .filter(([_, pos]) => pos.col >= minCol && pos.col <= maxCol)
+            .map(([id, _]) => id);
+
+    } else if (lastPos.col === tilePos.col) {
+        const tilesInCol = getTilesInSameCol(G, tilePos);
+        const minRow = Math.min(lastPos.row, tilePos.row);
+        const maxRow = Math.max(lastPos.row, tilePos.row);
+
+        selectedTiles = tilesInCol
+            .filter(([_, pos]) => pos.row >= minRow && pos.row <= maxRow)
+            .map(([id, _]) => id);
+    } else {
+        console.debug('SELECTION CANCELED: NOT SAME ROW OR COLUMN');
+        return;
+    }
+
+    setState({selectedTiles: tryOrderTiles(selectedTiles), lastSelectedTileId: null});
 }
 
-function handleLongPress(G, playerID, setState, longPressTimeoutId, tileId, timeout) {
-    // if (!(this.state.selectedTiles.length === 0 || this.state.selectedTiles.includes(tileId))) return
-    let defaultTimeout = timeout ? timeout : 200
-    const selectedTileIds = (a) => a.map(tile => tile)
-    let selectedTiles = []
-    console.debug('LONG PRESS STARTED')
-    let firstCallDone = false;
-    longPressTimeoutId.current = setTimeout((function cb(tileId) {
-        console.debug('Tile selected', tileId)
-        // console.debug(this.props)
-        let tilePos = G.tilePositions[tileId]
-        let grid = getGridByIdPlayer(G, tilePos.gridId, playerID)
-        let tile = grid[tilePos.row][tilePos.col]
-        if (!firstCallDone) {
-            firstCallDone = true
-            selectedTiles.push(tile)
-            setState({selectedTiles: selectedTileIds(selectedTiles)})
-        } else {
-            tile = getNextTile(G, playerID, tileId)
-            if (tile) {
-                selectedTiles.push(tile)
-                // console.debug(selectedTiles)
-                if (selectedTiles.length == 3) {
-                    if (!isSequenceValid(selectedTiles)) {
-                        selectedTiles.pop()
-                        selectedTiles.push(BlackJoker)
-                        if (isSequenceValid(selectedTiles)) {
-                            selectedTiles.pop()
-                            setState({selectedTiles: selectedTileIds(selectedTiles)})
-                        } else {
-                            setState({selectedTiles: []})
-                        }
-                        return
-                    } else {
-                        setState({selectedTiles: selectedTileIds(selectedTiles)})
-                    }
-                } else if (selectedTiles.length < 3) {
-                    setState({selectedTiles: selectedTileIds(selectedTiles)})
-                } else {
-                    if (!isSequenceValid(selectedTiles)) {
-                        return
-                    } else {
-                        setState({selectedTiles: selectedTileIds(selectedTiles)})
-                    }
-                }
-            } else {
-                setState({selectedTiles: selectedTileIds(selectedTiles)})
-                return
+
+function handleLongPress(G, playerID, setState, longPressTimeoutId, tileId, timeout = 200) {
+    console.debug('LONG PRESS STARTED');
+    let selectedTiles = [tileId];
+
+    function continueSelection(currentTileId) {
+        const nextTileId = getNextTile(G, playerID, currentTileId);
+
+        if (!nextTileId) {
+            console.debug('No next tile found, ending long press.');
+            setState({ selectedTiles });
+            return;
+        }
+
+        selectedTiles.push(nextTileId);
+
+        // Validate after adding the new tile
+        if (selectedTiles.length >= 3) {
+            if (!isSequenceValid(selectedTiles)) {
+                console.debug('Invalid sequence, stopping selection.');
+                selectedTiles.pop(); // Remove invalid tile
+                setState({ selectedTiles });
+                return;
             }
         }
-        longPressTimeoutId.current = setTimeout(cb.bind(this), defaultTimeout, tile)
-    }), defaultTimeout, tileId)
+
+        setState({ selectedTiles });
+
+        longPressTimeoutId.current = setTimeout(() => continueSelection(nextTileId), timeout);
+    }
+
+    // First select the tile immediately
+    setState({ selectedTiles });
+
+    // Start selecting the NEXT tile after timeout
+    longPressTimeoutId.current = setTimeout(() => continueSelection(tileId), timeout);
 }
+
+
 
 export {
     handleTileSelection,

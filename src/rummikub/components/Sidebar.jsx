@@ -8,7 +8,6 @@ const Sidebar = function ({
                               tilesOnPool,
                               currentPlayer,
                               playerID,
-                              matchID,
                               matchData,
                               gameover,
                               timePerTurn,
@@ -47,7 +46,9 @@ const Sidebar = function ({
                     }
                     return elem
                 })}</div>
-            {/*<span>{timeLeft}</span>*/}
+            <div className="tile-pool-counter ml-3" style={{marginTop: '1rem', fontWeight: 'bold'}}>
+                Tiles left: {tilesOnPool}
+            </div>
         </div>)
 
 

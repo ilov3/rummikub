@@ -4,11 +4,11 @@ import GridContainer from "./GridContainer";
 import {DndProvider} from 'react-dnd'
 import {HTML5Backend} from 'react-dnd-html5-backend'
 import {
-    HAND_GRID_ID, BOARD_GRID_ID, BOARD_ROWS, BOARD_COLS, HAND_ROWS, HAND_COLS, IS_DEV
+    HAND_GRID_ID, BOARD_GRID_ID, BOARD_ROWS, BOARD_COLS, HAND_ROWS, HAND_COLS
 } from "../constants";
 import Sidebar from "./Sidebar";
 import {extractSeqs, isBoardHasNewTiles, isBoardValid} from "../moveValidation";
-import {getSecTs, isSequenceValid} from "../util";
+import {buildGridsFromTilePositions, getSecTs, isSequenceValid} from "../util";
 import TileDragLayer from "./TileDragLayer";
 import GameOverModal from "./GameOverModal";
 import {handleTileSelection, handleLongPress} from "../boardUtil";
@@ -16,6 +16,7 @@ import _ from "lodash";
 
 const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, events}) {
     console.log('RENDER BOARD')
+    const [recentlyDrawnTiles, setRecentlyDrawnTiles] = useState([]);
 
     useEffect(() => {
         if (playerID === '0' && ctx.phase === 'playersJoin' && _.every(matchData, (item) => item.name)) {
@@ -23,6 +24,19 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, ev
             events.endPhase()
         }
     }, [matchData])
+
+    useEffect(() => {
+        if (G.recentlyDrawnTiles?.length) {
+            setRecentlyDrawnTiles(G.recentlyDrawnTiles);
+
+            const timeout = setTimeout(() => {
+                setRecentlyDrawnTiles([]);
+                moves.clearRecentlyDrawnTiles({G, ctx});
+            }, 1500);
+
+            return () => clearTimeout(timeout);
+        }
+    }, [G.recentlyDrawnTiles]);
 
     const [state, setState] = useState({selectedTiles: [], lastSelectedTileId: null})
     const [showInvalidTiles, setShowInvalidTiles] = useState(false);
@@ -53,9 +67,16 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, ev
     }, [longPressTimeoutId])
 
     function onBoardClick(e) {
-        let classList = e.target.className && e.target.className.split && e.target.className.split(' ')
-        if (!(classList && (classList.includes('tile') || classList.includes('tile-text')))) {
-            setState({selectedTiles: [], lastSelectedTileId: null})
+        const classList = e.target.className?.split?.(' ') || [];
+        const isTileClick = classList.includes('tile') || classList.includes('tile-text');
+
+        if (!isTileClick) {
+            setState(prev => {
+                if (prev.selectedTiles.length === 0 && prev.lastSelectedTileId === null) {
+                    return prev; // no state change, avoid re-render
+                }
+                return {selectedTiles: [], lastSelectedTileId: null};
+            });
         }
     }
 
@@ -64,7 +85,7 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, ev
     }
 
     function drawTile(e) {
-        moves.drawTile(!isBoardValid(G.board))
+        moves.drawTile(!isBoardValid(G))
     }
 
     function onOrderByValColor(e) {
@@ -72,7 +93,7 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, ev
     }
 
     function endTurn(e) {
-        let seqs = extractSeqs(G.board)
+        let seqs = extractSeqs(G)
         let _validTiles = []
         for (const seq of seqs) {
             if (isSequenceValid(seq)) {
@@ -86,7 +107,7 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, ev
         setTimeout(() => {
             setShowInvalidTiles(false)
             moves.endTurn()
-        }, 250)
+        }, 600)
     }
 
     function onTimeout() {
@@ -104,7 +125,7 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, ev
                 onTimeout()
             }
         }
-    }, [G.timerExpireAt, ctx.currentPlayer, ctx.gameover])
+    }, [G.timerExpireAt, ctx.currentPlayer, ctx.gameover, G.tilePositions])
 
 
     const endBut = (<button disabled={!(ctx.currentPlayer === playerID) || ctx.gameover}
@@ -122,7 +143,7 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, ev
             drawTile()
         }}>Draw
     </button>)
-    const undoBut = (<button disabled={!G.gameStateStack.length || ctx.gameover}
+    const undoBut = (<button disabled={!G.gameStateStack.length || ctx.gameover || ctx.currentPlayer !== playerID}
                              className={'rummikub-button'}
                              title={'Undo last action'}
                              onClick={() => {
@@ -130,19 +151,20 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, ev
                              }}>Undo
     </button>)
 
-    const redoBut = (<button disabled={!G.redoMoveStack.length || ctx.gameover}
+    const redoBut = (<button disabled={!G.redoMoveStack.length || ctx.gameover || ctx.currentPlayer !== playerID}
                              className={'rummikub-button'}
                              title={'Redo last action'}
                              onClick={() => {
                                  moves.redo()
                              }}>Redo
     </button>)
+    const {board, hands} = buildGridsFromTilePositions(G.tilePositions, ctx.numPlayers)
 
     const boardGrid = (<div className="ref">
         <GridContainer
             rows={BOARD_ROWS}
             cols={BOARD_COLS}
-            tiles2dArray={G.board}
+            tiles2dArray={board}
             gridId={BOARD_GRID_ID}
             canDnD={ctx.currentPlayer === playerID}
             moveTiles={moveTilesUseCb}
@@ -153,16 +175,15 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, ev
             handleTileSelection={handleTileSelectionCb}
             handleLongPress={handleLongPressCb}
             onLongPressMouseUp={onLongPressMouseUp}
-            moves={moves}
-            playerID={playerID}
             hoverPosition={hoverPosition}
             setHoverPosition={setHoverPosition}
+            newlyAdded={recentlyDrawnTiles}
         /></div>)
 
     const handGrid = (
         <GridContainer rows={HAND_ROWS}
                        cols={HAND_COLS}
-                       tiles2dArray={G.hands[playerID]}
+                       tiles2dArray={hands[playerID]}
                        gridId={HAND_GRID_ID}
                        canDnD={true}
                        highlightTiles={false}
@@ -172,23 +193,21 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, ev
                        handleTileSelection={handleTileSelectionCb}
                        handleLongPress={handleLongPressCb}
                        onLongPressMouseUp={onLongPressMouseUp}
-                       moves={moves}
-                       playerID={playerID}
                        hoverPosition={hoverPosition}
                        setHoverPosition={setHoverPosition}
+                       newlyAdded={recentlyDrawnTiles}
         />)
 
     const sidebar = (
         <Sidebar
             currentPlayer={ctx.currentPlayer}
             playerID={playerID}
-            matchID={matchID}
             matchData={matchData || []}
             gameover={ctx.gameover}
             timePerTurn={G.timePerTurn}
             timerExpireAt={G.timerExpireAt}
             onTimeout={checkTimerExpired}
-            hands={G.hands}
+            hands={hands}
             tilesOnPool={G.tilesPool.length}
         />
     )
@@ -231,8 +250,8 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, ev
                         }}>777
                         </button>
                         {drawOrEnd}
-                        {(ctx.currentPlayer === playerID) ? undoBut : ''}
-                        {(ctx.currentPlayer === playerID) ? redoBut : ''}
+                        {undoBut}
+                        {redoBut}
                     </div>
                 </div>
             </div>

@@ -78,11 +78,6 @@ function setTileColor(tile, color) {
 }
 
 
-function getTileById(tileId) {
-    const [variant, value, color] = tileId.split('-')
-    return buildTileObj(parseInt(value), color, parseInt(variant))
-}
-
 const RedJoker = buildTileObj(14, COLOR.red, 0)
 const BlackJoker = buildTileObj(14, COLOR.black, 0)
 
@@ -438,9 +433,6 @@ function getSecTs() {
 
 function getGameState(G) {
     return {
-        hands: original(G.hands),
-        board: original(G.board),
-        prevBoard: original(G.prevBoard),
         tilePositions: original(G.tilePositions),
         prevTilePositions: original(G.prevTilePositions),
     }
@@ -506,6 +498,33 @@ function buildGridsFromTilePositions(tilePositions, numPlayers) {
     return {board, hands};
 }
 
+function getPlayerHandTiles(G, playerID) {
+    return Object.entries(G.tilePositions)
+        .filter(([_, pos]) =>
+            pos.gridId === HAND_GRID_ID && pos.playerID === playerID
+        )
+        .map(([tileId, _]) => tileId);
+}
+
+function getHandsTilesGrid(G, numPlayers) {
+    const hands = Array.from({ length: numPlayers }, () =>
+        Array.from({ length: HAND_ROWS }, () => Array(HAND_COLS).fill(null))
+    );
+
+    for (const [tileId, pos] of Object.entries(G.tilePositions)) {
+        if (pos.gridId === HAND_GRID_ID && pos.playerID != null) {
+            const playerIndex = parseInt(pos.playerID);
+            if (!isNaN(playerIndex)) {
+                hands[playerIndex][pos.row][pos.col] = tileId;
+            }
+        }
+    }
+
+    return hands;
+}
+
+
+
 
 export {
     buildTileObj,
@@ -513,7 +532,6 @@ export {
     getTileColor,
     setTileValue,
     setTileColor,
-    getTileById,
     getTiles,
     isJoker,
     isSequenceValid,
@@ -538,4 +556,6 @@ export {
     copyToClipboard,
     stringToColor,
     buildGridsFromTilePositions,
+    getPlayerHandTiles,
+    getHandsTilesGrid,
 }
