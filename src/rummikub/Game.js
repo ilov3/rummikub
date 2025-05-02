@@ -1,7 +1,7 @@
 import {Stage} from 'boardgame.io/core';
 import {getTiles} from './util'
 import {drawTile, endTurn, moveTiles, onPlayPhaseBegin, onTurnBegin, onTurnEnd, redo, undo} from "./moves";
-import {GAME_NAME, HAND_COLS, HAND_GRID_ID, HAND_ROWS, IS_DEV, TILES_TO_DRAW} from "./constants";
+import {GAME_NAME, HAND_COLS, HAND_GRID_ID, HAND_ROWS, TILES_TO_DRAW} from "./constants";
 import {orderByColorVal, orderByValColor} from "./orderTiles";
 
 

@@ -3,12 +3,12 @@ import "./GameOverModal.css";
 import {FRONTEND_PORT, LOBBY_SERVER_HOST, LOBBY_SERVER_PROTO} from "../constants";
 import {copyToClipboard} from "../util";
 import GameLobbyClient from "../lobbyClient";
-import {useLocation, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
+import _ from "lodash";
 
 const GameOverModal = ({gameover, matchId, playerID, matchData}) => {
     const client = new GameLobbyClient()
     const navigate = useNavigate()
-    const location = useLocation()
 
 
     function onPlayAgain(event) {
@@ -21,16 +21,26 @@ const GameOverModal = ({gameover, matchId, playerID, matchData}) => {
                 let username = matchData[parseInt(playerID)].name;
                 copyToClipboard(matchLink)
                 console.debug(result.nextMatchID)
-
-                client.joinGame(result.nextMatchID, username, playerID).then((playerCreds) => {
-                    navigate(`/match/${result.nextMatchID}`, {
-                        state: {
-                            username: username,
-                            // numPlayers: numPlayers,
-                            creds: playerCreds,
-                            playerID: playerID,
+                client.listSeats(result.nextMatchID).then(matchData => {
+                    let seat = 0
+                    console.debug(matchData)
+                    for (let playerSeat of _.shuffle(matchData.players)) {
+                        if (!playerSeat.name) {
+                            seat = playerSeat.id
+                            break
                         }
+                    }
+                    client.joinGame(result.nextMatchID, username, seat).then((playerCreds) => {
+                        navigate(`/match/${result.nextMatchID}`, {
+                            state: {
+                                username: username,
+                                creds: playerCreds,
+                                playerID: seat,
+                            },
+                        })
                     })
+                }, error => {
+                    console.debug(error)
                 })
             }
         )
@@ -40,7 +50,8 @@ const GameOverModal = ({gameover, matchId, playerID, matchData}) => {
         <div className="gameover-backdrop">
             <div className="gameover-modal">
                 <h2 className="gameover-title">🎉 Congratulations {matchData[parseInt(gameover.winner)].name}! 🎉</h2>
-                <p className="gameover-points">Total Points: <strong>{gameover.points[parseInt(gameover.winner)]}</strong></p>
+                <p className="gameover-points">Total
+                    Points: <strong>{gameover.points[parseInt(gameover.winner)]}</strong></p>
                 <ul className="gameover-score-list">
                     {Object.entries(gameover.points)
                         .sort((a, b) => b[0] - a[0])
