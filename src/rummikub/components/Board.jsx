@@ -177,7 +177,7 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, ev
             onLongPressMouseUp={onLongPressMouseUp}
             hoverPosition={hoverPosition}
             setHoverPosition={setHoverPosition}
-            newlyAdded={recentlyDrawnTiles}
+            newlyAdded={[]}
         /></div>)
 
     const handGrid = (
