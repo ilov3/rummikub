@@ -34,12 +34,12 @@ body {
 }
 
 .rummikub-button:disabled {
-  background-color: #ddd !important;
-  color: #888 !important;
-  cursor: not-allowed;
-  box-shadow: none;
-  transform: none;
-  opacity: 0.6;
+    background-color: #ddd !important;
+    color: #888 !important;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+    opacity: 0.6;
 }
 
 div.grid-item {
@@ -235,5 +235,5 @@ svg.fa-smile-beam {
 }
 
 .tile-pool-counter {
-  font-size: 1.2rem;
+    font-size: 1.2rem;
 }

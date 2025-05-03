@@ -222,7 +222,7 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, ev
 
     return <DndProvider backend={HTML5Backend}>
 
-        <div className={'container-float'}>
+        <div className={'container-float board-container'}>
             {ctx.gameover &&
                 <GameOverModal
                     gameover={ctx.gameover}
