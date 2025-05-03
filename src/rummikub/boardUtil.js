@@ -1,5 +1,5 @@
 import {isSequenceValid, tryOrderTiles} from "./util";
-import {HAND_GRID_ID} from "./constants";
+import {HAND_GRID_ID} from "./constants.js";
 
 function getNextTile(G, playerID, tileId) {
     const currentPos = G.tilePositions[tileId];

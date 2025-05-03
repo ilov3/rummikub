@@ -1,5 +1,5 @@
 import {LobbyClient} from 'boardgame.io/client';
-import {GAME_NAME, LOBBY_SERVER_HOST, LOBBY_SERVER_PORT, LOBBY_SERVER_PROTO} from "./constants";
+import {GAME_NAME, LOBBY_SERVER_HOST, LOBBY_SERVER_PORT, LOBBY_SERVER_PROTO} from "./constants.js";
 
 class GameLobbyClient {
     constructor() {

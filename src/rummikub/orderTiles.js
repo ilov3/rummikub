@@ -6,8 +6,8 @@ import {
     getGameState,
     deactivateTileVariant,
     getPlayerHandTiles
-} from "./util";
-import {HAND_COLS, HAND_GRID_ID, HAND_ROWS} from "./constants";
+} from "./util.js";
+import {HAND_COLS, HAND_GRID_ID, HAND_ROWS} from "./constants.js";
 
 function isTileSlotEmpty(G, gridId, row, col, playerID = null) {
     return !Object.values(G.tilePositions).some(pos =>

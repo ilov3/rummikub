@@ -1,6 +1,6 @@
 import _ from "lodash";
 import {countSeqScore, isSequenceValid} from "./util.js";
-import {FIRST_MOVE_SCORE_LIMIT, BOARD_GRID_ID} from "./constants";
+import {FIRST_MOVE_SCORE_LIMIT, BOARD_GRID_ID} from "./constants.js";
 
 
 function freezeTmpTiles(G) {

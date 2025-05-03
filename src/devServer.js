@@ -1,5 +1,5 @@
-import {Server, Origins} from 'boardgame.io/server';
-import {Rummikub} from "./rummikub/Game";
+import {Server, Origins} from 'boardgame.io/dist/cjs/server.js';
+import {Rummikub} from "./rummikub/Game.js";
 
 const server = Server(
     {

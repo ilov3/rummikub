@@ -2,6 +2,7 @@
   "name": "rummikub",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "dependencies": {
     "@babel/plugin-transform-modules-commonjs": "^7.21.2",
     "@fortawesome/fontawesome-free": "^6.4.0",
@@ -10,7 +11,6 @@
     "@fortawesome/react-fontawesome": "^0.2.0",
     "boardgame.io": "^0.50.2",
     "bootstrap": "^4.6.0",
-    "esm": "^3.2.25",
     "koa-static": "^5.0.0",
     "lodash": "^4.17.21",
     "react": "^18.3.1",
@@ -26,7 +26,7 @@
     "start": "source .env && vite",
     "build": "source .env.production.local && vite build",
     "test": "jest",
-    "serve": "node --env-file .env -r esm src/devServer.js",
+    "serve": "node --env-file .env src/devServer.js",
     "dev": "vite"
   },
   "eslintConfig": {

@@ -1,4 +1,4 @@
-import {BOARD_GRID_ID, HAND_COLS, HAND_GRID_ID, HAND_ROWS} from "./constants";
+import {BOARD_GRID_ID, HAND_COLS, HAND_GRID_ID, HAND_ROWS} from "./constants.js";
 import _ from "lodash";
 import {
     isBoardHasNewTiles,
@@ -6,18 +6,20 @@ import {
     isFirstMove,
     isMoveValid,
     freezeTmpTiles, isBoardValid,
-} from "./moveValidation";
+} from "./moveValidation.js";
 import {
     countPoints,
     findWinner,
     getSecTs,
     getGameState,
     getTileReadableName, getHandsTilesGrid
-} from "./util";
+} from "./util.js";
 import {original} from "immer"
 import {current} from 'immer';
-import {INVALID_MOVE} from 'boardgame.io/core';
-import {pushTilesToGrid} from "./orderTiles";
+
+import {pushTilesToGrid} from "./orderTiles.js";
+
+import { INVALID_MOVE } from 'boardgame.io/dist/cjs/core.js';
 
 
 function drawTile({G, ctx, playerID, events}, doRollback = true) {

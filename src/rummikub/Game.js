@@ -1,8 +1,8 @@
-import {Stage} from 'boardgame.io/core';
-import {getTiles} from './util'
-import {drawTile, endTurn, moveTiles, onPlayPhaseBegin, onTurnBegin, onTurnEnd, redo, undo} from "./moves";
-import {GAME_NAME, HAND_COLS, HAND_GRID_ID, HAND_ROWS, TILES_TO_DRAW} from "./constants";
-import {orderByColorVal, orderByValColor} from "./orderTiles";
+import {Stage} from 'boardgame.io/dist/cjs/core.js';
+import {getTiles} from './util.js'
+import {drawTile, endTurn, moveTiles, onPlayPhaseBegin, onTurnBegin, onTurnEnd, redo, undo} from "./moves.js";
+import {GAME_NAME, HAND_COLS, HAND_GRID_ID, HAND_ROWS, TILES_TO_DRAW} from "./constants.js";
+import {orderByColorVal, orderByValColor} from "./orderTiles.js";
 
 
 const Rummikub = {
@@ -69,7 +69,9 @@ const Rummikub = {
         endTurn,
         undo,
         redo,
-        clearRecentlyDrawnTiles: ({G, ctx}) => {G.recentlyDrawnTiles = []}
+        clearRecentlyDrawnTiles: ({G, ctx}) => {
+            G.recentlyDrawnTiles = []
+        }
     },
     turn: {
         activePlayers: {all: Stage.NULL},

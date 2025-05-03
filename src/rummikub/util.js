@@ -1,5 +1,5 @@
 import _ from "lodash";
-import {BOARD_COLS, BOARD_GRID_ID, BOARD_ROWS, COLOR, COLORS, HAND_COLS, HAND_GRID_ID, HAND_ROWS} from "./constants";
+import {BOARD_COLS, BOARD_GRID_ID, BOARD_ROWS, COLOR, COLORS, HAND_COLS, HAND_GRID_ID, HAND_ROWS} from "./constants.js";
 import {original} from "immer";
 
 let isPrimitive = (val) => {

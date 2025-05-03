@@ -27,7 +27,7 @@ Game in progress
 - Turn timeout handled on client-side, so there is a way to bypass it
 
 ### Local development
-Make sure node/npm installed, currently game requires node v20
+Make sure node/npm installed, currently game requires node v22
 
 1. Create .env file and change env var values if needed
 ```shell

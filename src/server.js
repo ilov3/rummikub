@@ -1,8 +1,8 @@
-import {Server, Origins} from 'boardgame.io/server';
+import {Server, Origins} from 'boardgame.io/dist/cjs/server.js';
 import path from 'path';
 import serve from 'koa-static';
-import {Rummikub} from "./rummikub/Game";
-import {FRONTEND_ADDR} from "./rummikub/constants";
+import {Rummikub} from "./rummikub/Game.js";
+import {FRONTEND_ADDR} from "./rummikub/constants.js";
 
 const server = Server({
     games: [Rummikub],
@@ -12,7 +12,7 @@ const server = Server({
 const PORT = process.env.PORT || 9119;
 
 // Build path relative to the server.js file
-const frontEndAppBuildPath = path.resolve(__dirname, '../build');
+const frontEndAppBuildPath = path.resolve(import.meta.dirname, '../build');
 server.app.use(serve(frontEndAppBuildPath))
 
 server.run(PORT, () => {
