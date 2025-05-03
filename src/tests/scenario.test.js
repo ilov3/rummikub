@@ -130,5 +130,5 @@ test('test game finish on no tiles on pool', () => {
     client1.moves.endTurn();
 
     ({G, ctx} = client0.getState());
-    expect(ctx.gameover).toEqual({winner: '1', points: 10})
+    expect(ctx.gameover).toEqual({winner: '1', points: {"0":-19, "1": 19}})
 });

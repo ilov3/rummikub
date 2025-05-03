@@ -241,7 +241,7 @@ function checkGameOver(G, ctx, events) {
     if (G.lastCircle.length >= ctx.numPlayers) {
         let winner = findWinner(hands)
         let points = countPoints(hands, winner)
-        ctx.events.endGame({winner: winner.toString(), points: points})
+        events.endGame({winner: winner.toString(), points: points})
     }
 
     let flattened = _.flatten(hands[ctx.currentPlayer])

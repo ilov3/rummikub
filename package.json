@@ -8,8 +8,6 @@
     "@fortawesome/fontawesome-svg-core": "^6.4.0",
     "@fortawesome/free-solid-svg-icons": "^6.4.0",
     "@fortawesome/react-fontawesome": "^0.2.0",
-    "@sentry/react": "^7.47.0",
-    "@sentry/tracing": "^7.47.0",
     "boardgame.io": "^0.50.2",
     "bootstrap": "^4.6.0",
     "esm": "^3.2.25",
@@ -17,7 +15,6 @@
     "lodash": "^4.17.21",
     "react": "^18.3.1",
     "react-bootstrap": "^1.6.1",
-    "react-compiler-runtime": "^19.1.0-rc.1",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.3.1",
@@ -26,8 +23,8 @@
     "web-vitals": "^3.5.2"
   },
   "scripts": {
-    "start": "vite",
-    "build": "vite build",
+    "start": "source .env && vite",
+    "build": "source .env.production.local && vite build",
     "test": "jest",
     "serve": "node --env-file .env -r esm src/devServer.js",
     "dev": "vite"
@@ -61,11 +58,8 @@
     "@types/react-dom": "^18.0.11",
     "@types/react-router-dom": "^5.3.3",
     "@vitejs/plugin-react": "^4.3.4",
-    "babel-plugin-react-compiler": "^19.1.0-rc.1",
-    "eslint-plugin-react-hooks": "^6.0.0-rc.1",
     "jest": "^29.5.0",
     "playwright": "^1.32.3",
-    "react-scan": "^0.3.3",
     "vite": "^6.1.0"
   }
 }

@@ -34,9 +34,14 @@ const GridSlot =
                 moveTiles(col, row, gridId, tileIdObj, selectedTiles)
                 setHoverPosition({})
             },
-            hover: () => {
+            hover: (item, monitor) => {
                 // This fires when a tile is dragged *over* this slot
-                setHoverPosition({col, row, gridId}); // set from parent scope via prop
+                if (monitor.canDrop()) {
+                    setHoverPosition({col, row, gridId}); // set from parent scope via prop
+                } else {
+                    setHoverPosition({});
+                }
+
             },
             canDrop: () => {
                 return canDnD

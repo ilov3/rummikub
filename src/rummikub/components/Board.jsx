@@ -32,7 +32,7 @@ const RummikubBoard = function ({G, ctx, moves, playerID, matchData, matchID, ev
             const timeout = setTimeout(() => {
                 setRecentlyDrawnTiles([]);
                 moves.clearRecentlyDrawnTiles({G, ctx});
-            }, 1500);
+            }, 800);
 
             return () => clearTimeout(timeout);
         }
