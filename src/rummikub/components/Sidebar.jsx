@@ -17,7 +17,7 @@ const Sidebar = function ({
                           }) {
     let showTurnTimer = matchData.length && !gameover && _.every(matchData, (item) => item.name)
     const timeLeft = useTurnTimer({
-        timerExpireAt: timerExpireAt,
+        timerExpireAt: showTurnTimer ? timerExpireAt : null,
         timePerTurn: timePerTurn,
         onTimeout: onTimeout,
         isActivePlayer: playerID === currentPlayer,
